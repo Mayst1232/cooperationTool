@@ -4,11 +4,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.cooperationtool.domain.user.dto.request.ModifyProfileRequestDto;
 import com.example.cooperationtool.domain.user.dto.request.SignupRequestDto;
 import com.example.cooperationtool.domain.user.dto.response.ProfileResponseDto;
 import com.example.cooperationtool.domain.user.dto.response.SignupResponseDto;
@@ -118,4 +120,35 @@ class UserControllerTest {
         }
     }
 
+
+    @Nested
+    @DisplayName("유저 정보 수정")
+    class ModifyProfile {
+
+        @Test
+        void success() throws Exception {
+            ModifyProfileRequestDto requestDto = ModifyProfileRequestDto.builder()
+                .nickname("change").introduce("바꾼 자기소개").build();
+
+            mockUserSetup();
+
+            ProfileResponseDto responseDto = ProfileResponseDto.builder()
+                .username("hwang1234").nickname(requestDto.getNickname())
+                .introduce(requestDto.getIntroduce()).role(UserRoleEnum.USER).build();
+
+            String json = objectMapper.writeValueAsString(requestDto);
+
+            given(userService.modifyProfile(any(), any())).willReturn(responseDto);
+
+            mockMvc.perform(patch("/api/user/profile")
+                    .content(json)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .principal(mockPrincipal))
+                .andExpectAll(status().isOk(),
+                    jsonPath("$.code").value("200"),
+                    jsonPath("$.message").value("유저 정보 변경 성공"),
+                    jsonPath("$.data.nickname").value(requestDto.getNickname())
+                );
+        }
+    }
 }
