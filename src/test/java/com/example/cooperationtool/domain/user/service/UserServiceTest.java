@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import com.example.cooperationtool.domain.user.dto.request.ModifyProfileRequestDto;
 import com.example.cooperationtool.domain.user.dto.request.SignupRequestDto;
 import com.example.cooperationtool.domain.user.dto.response.ProfileResponseDto;
 import com.example.cooperationtool.domain.user.dto.response.SignupResponseDto;
@@ -80,6 +81,34 @@ class UserServiceTest {
 
             assertThat(responseDto.getUsername()).isEqualTo("hwang");
             assertThat(responseDto.getNickname()).isEqualTo("mayst");
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 정보 수정 서비스 API 테스트")
+    class ModifyProfie {
+
+        @Test
+        void success() {
+            User user = User.builder()
+                .username("hwang")
+                .password("qwer")
+                .nickname("mayst")
+                .introduce("자기소개")
+                .role(UserRoleEnum.USER)
+                .build();
+
+            ModifyProfileRequestDto requestDto = ModifyProfileRequestDto.builder()
+                .nickname("바꾼 닉네임")
+                .introduce("바꾼 자기소개")
+                .build();
+
+            given(userRepository.findByUsername(any())).willReturn(Optional.of(user));
+
+            ProfileResponseDto responseDto = userService.modifyProfile(user, requestDto);
+
+            assertThat(responseDto.getNickname()).isEqualTo(requestDto.getNickname());
+            assertThat(responseDto.getIntroduce()).isEqualTo(requestDto.getIntroduce());
         }
     }
 
