@@ -87,5 +87,4 @@ public class CardService {
             () -> new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.")
         );
     }
-
 }
