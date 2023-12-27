@@ -1,7 +1,9 @@
 package com.example.cooperationtool.domain.user.controller;
 
+import static com.example.cooperationtool.global.exception.ErrorCode.MODIFY_PROFILE_FAILED;
 import static com.example.cooperationtool.global.exception.ErrorCode.SIGNUP_FAIL;
 
+import com.example.cooperationtool.domain.user.dto.request.ModifyProfileRequestDto;
 import com.example.cooperationtool.domain.user.dto.request.SignupRequestDto;
 import com.example.cooperationtool.domain.user.dto.response.ProfileResponseDto;
 import com.example.cooperationtool.domain.user.dto.response.SignupResponseDto;
@@ -17,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,4 +60,22 @@ public class UserController {
             .build());
     }
 
+
+    @PatchMapping("/user/profile")
+    public ResponseEntity<?> modifyProfile(@Valid @RequestBody ModifyProfileRequestDto requestDto,
+        BindingResult bindingResult, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+        if (!fieldErrors.isEmpty()) {
+            throw new ServiceException(MODIFY_PROFILE_FAILED);
+        }
+
+        ProfileResponseDto responseDto = userService.modifyProfile(userDetails.getUser(),
+            requestDto);
+
+        return ResponseEntity.ok(RootResponseDto.builder()
+            .code("200")
+            .message("유저 정보 변경 성공")
+            .data(responseDto)
+            .build());
+    }
 }
