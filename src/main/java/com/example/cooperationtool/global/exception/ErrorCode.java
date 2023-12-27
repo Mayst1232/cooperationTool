@@ -20,6 +20,8 @@ public enum ErrorCode {
     // column (3000)
 
     // card (4000)
+    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000","Card 생성 실패.")
+
     // comment (5000)
     ;
 
