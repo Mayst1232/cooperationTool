@@ -9,7 +9,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,17 +41,37 @@ public class CardController {
             List<CardResponseDto> cardResponseDtos = cardService.getCards();
             return ResponseEntity.ok().body(cardResponseDtos);
         }catch (NotFoundCardException ex){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<RootResponseDto> getCard(@PathVariable Long id){
+    @GetMapping("/{cardId}")
+    public ResponseEntity<RootResponseDto> getCard(@PathVariable Long cardId){
         try {
-            RootResponseDto rootResponseDto = cardService.getCard(id);
+            RootResponseDto rootResponseDto = cardService.getCard(cardId);
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (NotFoundCardException ex){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build();
+        }
+    }
+
+    @PatchMapping("/{cardId}")
+    public ResponseEntity<RootResponseDto> modifyCard(@PathVariable Long cardId, @RequestBody CardRequestDto requestDto){
+        try {
+            RootResponseDto rootResponseDto = cardService.modifyCard(cardId,requestDto);
+            return ResponseEntity.ok().body(rootResponseDto);
+        }catch (NotFoundCardException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build();
+        }
+    }
+
+    @DeleteMapping("/{cardId}")
+    public ResponseEntity<String> deleteCard(@PathVariable Long cardId){
+        try {
+            cardService.deleteCard(cardId);
+            return ResponseEntity.ok().body("성공적으로 삭제되었습니다.");
+        }catch (NullPointerException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build();
         }
     }
 }
