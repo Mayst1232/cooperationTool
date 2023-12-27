@@ -20,10 +20,11 @@ public enum ErrorCode {
     // column (3000)
 
     // card (4000)
-    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000","Card 생성 실패.")
+    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000","Card 생성 실패."),
+    NOT_FOUND_WORKER(HttpStatus.NOT_FOUND,"4000","존재하지 않는 Worker입니다..");
+
 
     // comment (5000)
-    ;
 
     private final HttpStatus status;
     private final String code;
