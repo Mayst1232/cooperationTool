@@ -3,6 +3,8 @@ package com.example.cooperationtool.domain.user.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.example.cooperationtool.domain.user.dto.request.ModifyProfileRequestDto;
 import com.example.cooperationtool.domain.user.dto.request.SignupRequestDto;
@@ -109,6 +111,28 @@ class UserServiceTest {
 
             assertThat(responseDto.getNickname()).isEqualTo(requestDto.getNickname());
             assertThat(responseDto.getIntroduce()).isEqualTo(requestDto.getIntroduce());
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 정보 삭제 서비스 API 테스트")
+    class DeleteUser {
+
+        @Test
+        void success() {
+            User user = User.builder()
+                .username("hwang")
+                .password("qwer")
+                .nickname("mayst")
+                .introduce("자기소개")
+                .role(UserRoleEnum.USER)
+                .build();
+
+            given(userRepository.findByUsername(user.getUsername())).willReturn(Optional.of(user));
+
+            userService.deleteUser(user);
+
+            verify(userRepository, times(1)).delete(any());
         }
     }
 
