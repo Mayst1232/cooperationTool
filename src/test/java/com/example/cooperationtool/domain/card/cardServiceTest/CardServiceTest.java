@@ -1,4 +1,4 @@
-package com.example.cooperationtool.card.cardServiceTest;
+package com.example.cooperationtool.domain.card.cardServiceTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
