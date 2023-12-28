@@ -112,4 +112,22 @@ public class UserService {
 
         userRepository.delete(findUser);
     }
+
+    public ProfileResponseDto getProfileAdmin(User user, Long userId) {
+        User AdminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        User findUser = userRepository.findById(userId).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        return ProfileResponseDto.builder()
+            .username(findUser.getUsername())
+            .nickname(findUser.getNickname())
+            .introduce(findUser.getIntroduce())
+            .role(findUser.getRole())
+            .build();
+    }
+
 }
