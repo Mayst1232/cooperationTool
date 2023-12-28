@@ -4,10 +4,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.cooperationtool.domain.user.dto.request.ModifyProfileRequestDto;
 import com.example.cooperationtool.domain.user.dto.response.ProfileResponseDto;
 import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.domain.user.entity.UserRoleEnum;
@@ -26,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -69,7 +72,7 @@ class AdminControllerTest {
     }
 
     @Nested
-    @DisplayName("관리자 유저 정보 조회")
+    @DisplayName("관리자 특정 유저 정보 조회")
     class GetProfileAdmin {
 
         @DisplayName("성공 케이스")
@@ -91,6 +94,47 @@ class AdminControllerTest {
                     jsonPath("$.data.username").value("hwang"));
         }
 
+    }
+
+    @Nested
+    @DisplayName("관리자 특정 유저 정보 수정")
+    class ModifyProfileAdmin {
+
+        @Test
+        void success() throws Exception {
+            mockUserSetup();
+
+            Long userId = 2L;
+
+            User adminUser = User.builder()
+                .username("admin")
+                .password("admin")
+                .role(UserRoleEnum.ADMIN)
+                .build();
+
+            ModifyProfileRequestDto requestDto = ModifyProfileRequestDto.builder()
+                .nickname("change").introduce("change Introduce").build();
+
+            String json = objectMapper.writeValueAsString(requestDto);
+
+            ProfileResponseDto responseDto = ProfileResponseDto.builder()
+                .username("hwang").nickname("change").introduce("change introduce")
+                .role(UserRoleEnum.USER)
+                .build();
+
+            given(userService.modifyProfileAdmin(adminUser, userId, requestDto)).willReturn(
+                responseDto);
+
+            mockMvc.perform(patch("/api/admin/users/profile/{userId}", userId)
+                    .content(json)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .principal(mockPrincipal))
+                .andExpectAll(
+                    status().isOk(),
+                    jsonPath("$.code").value("200"),
+                    jsonPath("$.message").value("해당 유저의 정보를 수정하였습니다.")
+                );
+        }
     }
 
 }
