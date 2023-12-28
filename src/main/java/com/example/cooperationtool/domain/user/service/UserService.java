@@ -105,4 +105,11 @@ public class UserService {
         return responseDto;
     }
 
+    public void deleteUser(User user) {
+        User findUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        userRepository.delete(findUser);
+    }
 }
