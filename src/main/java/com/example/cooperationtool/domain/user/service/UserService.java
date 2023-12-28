@@ -1,6 +1,7 @@
 package com.example.cooperationtool.domain.user.service;
 
 import static com.example.cooperationtool.global.exception.ErrorCode.DUPLICATE_USERNAME;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_ADMIN;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_EXIST_USER;
 import static com.example.cooperationtool.global.exception.ErrorCode.WRONG_ADMIN_CODE;
 
@@ -122,6 +123,10 @@ public class UserService {
             () -> new ServiceException(NOT_EXIST_USER)
         );
 
+        if (!adminUser.getRole().equals(UserRoleEnum.ADMIN)) {
+            throw new ServiceException(NOT_ADMIN);
+        }
+
         return ProfileResponseDto.builder()
             .username(findUser.getUsername())
             .nickname(findUser.getNickname())
@@ -140,6 +145,10 @@ public class UserService {
         User findUser = userRepository.findById(userId).orElseThrow(
             () -> new ServiceException(NOT_EXIST_USER)
         );
+
+        if (!adminUser.getRole().equals(UserRoleEnum.ADMIN)) {
+            throw new ServiceException(NOT_ADMIN);
+        }
 
         findUser.update(requestDto);
 
