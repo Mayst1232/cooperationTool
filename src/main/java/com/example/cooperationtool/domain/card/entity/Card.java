@@ -2,6 +2,7 @@ package com.example.cooperationtool.domain.card.entity;
 
 import com.example.cooperationtool.domain.model.BaseEntity;
 import com.example.cooperationtool.domain.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,10 +38,15 @@ public class Card extends BaseEntity {
     private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User user;
 
-    public void setCard(String title){
+    public void setTitle(String title){
         this.title = title;
+    }
+
+    public void setUser(User user){
+        this.user = user;
     }
 
 }
