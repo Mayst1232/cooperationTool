@@ -73,12 +73,15 @@ public class CardService {
     private User findByUser(User user) {
         Long userId = user.getId();
         if (userId == null){
-            throw new IllegalArgumentException("user 오류 발생");
+            throw new IllegalArgumentException("user null");
         }
-        cardRepository.findById(user.getId()).orElseThrow(
-            () -> new NotFoundWorker("userId", user.getId().toString(), "해당 ID가 없습니다.")
-        );
-        return null;
+
+        var byId = cardRepository.findById(userId);
+        if(byId.isPresent()){
+            throw new NotFoundWorker("userId", userId.toString(), "해당 ID가 없습니다.");
+        }
+
+        return byId.get().getUser();
     }
 
     private Card findByCard(Long cardId) {
