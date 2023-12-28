@@ -1,19 +1,20 @@
 spring:
+  profiles:
+    default: local
   datasource:
-    username: sa
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:db
+    username: ${DB_USERNAME}
+    password: ${DB_PASS}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
   jpa:
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
     properties:
       hibernate:
-        show_sql: true
         format_sql: true
         use_sql_comments: true
-  h2:
-    console:
-      enabled: true
 
 server:
   servlet:
@@ -23,4 +24,4 @@ server:
 
 jwt:
   secret:
-    key: dlatlzlrkqtdlqfurgkqslek
+    key: ${JWT_KEY}
