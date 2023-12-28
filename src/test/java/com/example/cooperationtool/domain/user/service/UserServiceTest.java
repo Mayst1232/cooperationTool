@@ -136,4 +136,38 @@ class UserServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("관리자 유저 정보 조회 서비스 API 테스트")
+    class GetProfileAdmin {
+
+        @Test
+        void success() {
+            User adminUser = User.builder()
+                .username("hwang1234")
+                .password("qwer1234")
+                .nickname("mayst1234")
+                .introduce("자기소개")
+                .role(UserRoleEnum.ADMIN)
+                .build();
+
+            User user = User.builder()
+                .username("hwang")
+                .password("qwer")
+                .nickname("mayst")
+                .introduce("자기소개")
+                .role(UserRoleEnum.USER)
+                .build();
+
+            given(userRepository.findByUsername(adminUser.getUsername())).willReturn(
+                Optional.of(adminUser));
+            given(userRepository.findById(any())).willReturn(Optional.of(user));
+
+            ProfileResponseDto responseDto = userService.getProfileAdmin(adminUser, 2L);
+
+            assertThat(responseDto.getUsername()).isEqualTo(user.getUsername());
+            assertThat(responseDto.getNickname()).isEqualTo(user.getNickname());
+            assertThat(responseDto.getIntroduce()).isEqualTo(user.getIntroduce());
+        }
+    }
+
 }
