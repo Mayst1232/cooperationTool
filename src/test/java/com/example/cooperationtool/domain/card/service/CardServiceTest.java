@@ -1,17 +1,19 @@
 package com.example.cooperationtool.domain.card.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+import com.example.cooperationtool.domain.card.dto.CardRequestDto;
 import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.card.entity.Card;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
 import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.domain.user.entity.UserRoleEnum;
+import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,20 +40,18 @@ public class CardServiceTest {
     @Test
     @DisplayName("Card 생성")
     void createTest() {
-        // given
-        User mockUser = User.builder().username("tesUser").password("testPassword").role(UserRoleEnum.USER).build();
+        //given
+        User mockUser = User.builder().username("testUserName").password("testPassword").role(UserRoleEnum.USER).build();
         UserDetailsImpl mockUserDetails = new UserDetailsImpl(mockUser);
-        Card savedCard = Card.builder().id(1L).title("testTitle").build();
+        Card saveCard = Card.builder().id(1L).title("testTitle1").build();
+        CardRequestDto requestDto = new CardRequestDto("testTitle");
 
-        given(userDetails.getUser()).willReturn(mockUserDetails.getUser());
-        given(cardRepository.save(savedCard)).willReturn(savedCard);
-        given(cardRepository.findById(savedCard.getId())).willReturn(Optional.of(savedCard));
-        // when
-        Optional<Card> response = cardRepository.findById(savedCard.getId());
+        given(cardRepository.save(saveCard)).willReturn(saveCard);
+        //when
+        RootResponseDto card = cardService.createCard(requestDto, mockUser);
 
-        // then
-        System.out.println(response.get().getTitle());
-        assertEquals("testTitle",response.get().getTitle());
+        //then
+        verify(cardRepository).save(saveCard);
     }
 
     @Test
@@ -68,9 +68,12 @@ public class CardServiceTest {
         given(cardRepository.save(saveCard1)).willReturn(saveCard1);
         given(cardRepository.findAll()).willReturn(Arrays.asList(saveCard, saveCard1));
         //when
-        List<CardResponseDto> cardList = cardService.getCards(mockUser);
+        cardRepository.save(saveCard);
+        cardRepository.save(saveCard1);
+        List<CardResponseDto> cards = cardService.getCards(mockUser);
 
         //then
-        System.out.println(cardList);
+        cards.forEach(card -> System.out.println(card.getTitle()));
+        verify(cardRepository).findAll();
     }
 }
