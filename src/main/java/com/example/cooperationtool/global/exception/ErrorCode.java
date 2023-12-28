@@ -19,7 +19,8 @@ public enum ErrorCode {
 
     // board (2000)
     NOT_FOUND_BOARD(HttpStatus.BAD_REQUEST, "2001", "요청하신 게시글이 존재하지 않습니다."),
-    NOT_MATCH_USER(HttpStatus.BAD_REQUEST, "2002", "작성자만 수정 및 삭제를 할 수 있습니다.")
+    NOT_MATCH_USER(HttpStatus.BAD_REQUEST, "2002", "작성자만 수정 및 삭제를 할 수 있습니다."),
+    ILLEGAL_BOARD_TYPE(HttpStatus.BAD_REQUEST, "2003", "해당되지 않는 게시글 입니다.")
     // column (3000)
 
     // card (4000)
