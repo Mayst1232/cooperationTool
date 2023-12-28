@@ -1,5 +1,6 @@
 package com.example.cooperationtool.domain.board.entity;
 
+import com.example.cooperationtool.domain.board.dto.request.BoardRequestDto;
 import com.example.cooperationtool.domain.model.BaseEntity;
 import com.example.cooperationtool.domain.user.entity.User;
 import jakarta.persistence.Column;
@@ -43,4 +44,8 @@ public class Board extends BaseEntity {
         this.user = user;
     }
 
+    public void update(BoardRequestDto boardRequestDto) {
+        this.title = boardRequestDto.getTitle();
+        this.content = boardRequestDto.getContent();
+    }
 }
