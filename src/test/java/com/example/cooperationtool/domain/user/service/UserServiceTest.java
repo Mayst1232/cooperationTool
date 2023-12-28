@@ -207,4 +207,39 @@ class UserServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("관리자 특정 유저 삭제 서비스 API 테스트")
+    class DeleteUserAdmin {
+
+        @Test
+        void success() {
+            User adminUser = User.builder()
+                .username("hwang1234")
+                .password("qwer1234")
+                .nickname("mayst1234")
+                .introduce("자기소개")
+                .role(UserRoleEnum.ADMIN)
+                .build();
+
+            User user = User.builder()
+                .username("hwang")
+                .password("qwer")
+                .nickname("mayst")
+                .introduce("자기소개")
+                .role(UserRoleEnum.USER)
+                .build();
+
+            Long userId = 2L;
+
+            given(userRepository.findByUsername(adminUser.getUsername())).willReturn(
+                Optional.of(adminUser));
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+            userService.deleteUserAdmin(adminUser, userId);
+
+            verify(userRepository, times(1)).delete(any());
+        }
+    }
+
 }
