@@ -16,6 +16,7 @@ public enum ErrorCode {
     TOKEN_ERROR(HttpStatus.BAD_REQUEST, "1004", "토큰이 틀립니다."),
     NOT_EXIST_USER(HttpStatus.BAD_REQUEST, "1005", "유저가 존재하지 않습니다."),
     MODIFY_PROFILE_FAILED(HttpStatus.BAD_REQUEST, "1006", "유저 정보 수정에 실패했습니다."),
+    NOT_ADMIN(HttpStatus.BAD_REQUEST, "1007", "관리자가 아닙니다."),
 
     // board (2000)
     NOT_FOUND_BOARD(HttpStatus.BAD_REQUEST, "2001", "요청하신 게시글이 존재하지 않습니다."),
