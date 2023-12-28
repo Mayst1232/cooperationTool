@@ -1,20 +1,23 @@
 package com.example.cooperationtool.domain.board.controller;
 
+import com.example.cooperationtool.domain.board.dto.BoardViewResponseDto;
 import com.example.cooperationtool.domain.board.dto.request.BoardRequestDto;
 import com.example.cooperationtool.domain.board.dto.response.BoardResponseDto;
 import com.example.cooperationtool.domain.board.service.BoardService;
-import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,7 +27,7 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping("boards")
+    @PostMapping("/boards")
     public ResponseEntity<?> createBoard(
         @RequestBody BoardRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -36,7 +39,7 @@ public class BoardController {
             .build());
     }
 
-    @DeleteMapping("boards/{boardId}")
+    @DeleteMapping("/boards/{boardId}")
     public ResponseEntity<?> deleteBoard(
         @PathVariable Long boardId,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -57,6 +60,17 @@ public class BoardController {
         return ResponseEntity.ok(RootResponseDto.builder()
                 .code("200")
                 .message("보드 수정 성공")
+                .data(responseDto)
+            .build());
+    }
+
+    @GetMapping("/boards")
+    public ResponseEntity<?> getBoards(
+        @RequestParam(name = "type", required = true, defaultValue = "all") String type) {
+        List<BoardViewResponseDto> responseDto = boardService.getBoards(type);
+        return ResponseEntity.ok(RootResponseDto.builder()
+                .code("200")
+                .message("보드 조회 성공")
                 .data(responseDto)
             .build());
     }
