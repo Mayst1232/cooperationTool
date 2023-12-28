@@ -159,4 +159,21 @@ public class UserService {
             .role(findUser.getRole())
             .build();
     }
+
+
+    public void deleteUserAdmin(User user, Long userId) {
+        User adminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        User findUser = userRepository.findById(userId).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        if (!adminUser.getRole().equals(UserRoleEnum.ADMIN)) {
+            throw new ServiceException(NOT_ADMIN);
+        }
+
+        userRepository.delete(findUser);
+    }
 }
