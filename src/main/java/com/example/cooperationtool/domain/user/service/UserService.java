@@ -114,7 +114,7 @@ public class UserService {
     }
 
     public ProfileResponseDto getProfileAdmin(User user, Long userId) {
-        User AdminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+        User adminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
             () -> new ServiceException(NOT_EXIST_USER)
         );
 
@@ -130,4 +130,24 @@ public class UserService {
             .build();
     }
 
+    @Transactional
+    public ProfileResponseDto modifyProfileAdmin(User user, Long userId,
+        ModifyProfileRequestDto requestDto) {
+        User adminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        User findUser = userRepository.findById(userId).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        findUser.update(requestDto);
+
+        return ProfileResponseDto.builder()
+            .username(findUser.getUsername())
+            .nickname(findUser.getNickname())
+            .introduce(findUser.getIntroduce())
+            .role(findUser.getRole())
+            .build();
+    }
 }
