@@ -1,6 +1,7 @@
 package com.example.cooperationtool.global.config;
 
 
+import com.example.cooperationtool.global.filter.ExceptionHandleFilter;
 import com.example.cooperationtool.global.filter.JwtAuthenticationFilter;
 import com.example.cooperationtool.global.filter.JwtAuthorizationFilter;
 import com.example.cooperationtool.global.security.UserDetailsServiceImpl;
@@ -41,6 +42,11 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public ExceptionHandleFilter exceptionHandleFilter() {
+        return new ExceptionHandleFilter();
+    }
+
+    @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
@@ -64,6 +70,7 @@ public class WebSecurityConfig {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 .requestMatchers("/").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/user/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
 
@@ -73,6 +80,7 @@ public class WebSecurityConfig {
         httpSecurity.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         httpSecurity.addFilterBefore(jwtAuthenticationFilter(),
             UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(exceptionHandleFilter(), JwtAuthorizationFilter.class);
 
         return httpSecurity.build();
     }
