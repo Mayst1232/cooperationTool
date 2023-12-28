@@ -5,10 +5,12 @@ import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.card.exception.NotFoundCardException;
 import com.example.cooperationtool.domain.card.service.CardService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
+import com.example.cooperationtool.global.security.UserDetailsImpl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -26,9 +28,10 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping
-    public ResponseEntity<RootResponseDto> createCard(@RequestBody CardRequestDto cardRequestDto){
+    public ResponseEntity<RootResponseDto> createCard(@RequestBody CardRequestDto cardRequestDto, @AuthenticationPrincipal
+        UserDetailsImpl userDetails){
         try {
-            RootResponseDto rootResponseDto = cardService.createCard(cardRequestDto);
+            RootResponseDto rootResponseDto = cardService.createCard(cardRequestDto,userDetails.getUser());
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -36,9 +39,9 @@ public class CardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CardResponseDto>> getCards(){
+    public ResponseEntity<List<CardResponseDto>> getCards(@AuthenticationPrincipal UserDetailsImpl userDetails){
         try {
-            List<CardResponseDto> cardResponseDtos = cardService.getCards();
+            List<CardResponseDto> cardResponseDtos = cardService.getCards(userDetails.getUser());
             return ResponseEntity.ok().body(cardResponseDtos);
         }catch (NotFoundCardException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -46,9 +49,9 @@ public class CardController {
     }
 
     @GetMapping("/{cardId}")
-    public ResponseEntity<RootResponseDto> getCard(@PathVariable Long cardId){
+    public ResponseEntity<RootResponseDto> getCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails){
         try {
-            RootResponseDto rootResponseDto = cardService.getCard(cardId);
+            RootResponseDto rootResponseDto = cardService.getCard(cardId, userDetails.getUser());
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (NotFoundCardException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build();
@@ -56,9 +59,9 @@ public class CardController {
     }
 
     @PatchMapping("/{cardId}")
-    public ResponseEntity<RootResponseDto> modifyCard(@PathVariable Long cardId, @RequestBody CardRequestDto requestDto){
+    public ResponseEntity<RootResponseDto> modifyCard(@PathVariable Long cardId, @RequestBody CardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
         try {
-            RootResponseDto rootResponseDto = cardService.modifyCard(cardId,requestDto);
+            RootResponseDto rootResponseDto = cardService.modifyCard(cardId,requestDto,userDetails.getUser());
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (NotFoundCardException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build();
@@ -66,9 +69,9 @@ public class CardController {
     }
 
     @DeleteMapping("/{cardId}")
-    public ResponseEntity<String> deleteCard(@PathVariable Long cardId){
+    public ResponseEntity<String> deleteCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails){
         try {
-            cardService.deleteCard(cardId);
+            cardService.deleteCard(cardId, userDetails.getUser());
             return ResponseEntity.ok().body("성공적으로 삭제되었습니다.");
         }catch (NullPointerException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build();
