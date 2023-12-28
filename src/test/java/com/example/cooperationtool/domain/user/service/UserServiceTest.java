@@ -170,4 +170,41 @@ class UserServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("관리자 특정 유저 정보 수정 서비스 API 테스트")
+    class ModifyProfileAdmin {
+
+        @Test
+        void success() {
+            User adminUser = User.builder()
+                .username("hwang1234")
+                .password("qwer1234")
+                .nickname("mayst1234")
+                .introduce("자기소개")
+                .role(UserRoleEnum.ADMIN)
+                .build();
+
+            User user = User.builder()
+                .username("hwang")
+                .password("qwer")
+                .nickname("mayst")
+                .introduce("자기소개")
+                .role(UserRoleEnum.USER)
+                .build();
+
+            ModifyProfileRequestDto requestDto = ModifyProfileRequestDto.builder()
+                .nickname("change").introduce("change").build();
+
+            given(userRepository.findByUsername(any())).willReturn(Optional.of(adminUser));
+
+            given(userRepository.findById(any())).willReturn(Optional.of(user));
+
+            ProfileResponseDto responseDto = userService.modifyProfileAdmin(adminUser, 2L,
+                requestDto);
+
+            assertThat(responseDto.getNickname()).isEqualTo("change");
+            assertThat(responseDto.getIntroduce()).isEqualTo("change");
+        }
+    }
+
 }
