@@ -63,13 +63,11 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
-        SignupResponseDto responseDto = SignupResponseDto.builder()
+        return SignupResponseDto.builder()
             .username(savedUser.getUsername())
             .nickname(savedUser.getNickname())
             .role(savedUser.getRole())
             .build();
-
-        return responseDto;
     }
 
     public ProfileResponseDto getProfile(User user) {
@@ -77,14 +75,12 @@ public class UserService {
             () -> new ServiceException(NOT_EXIST_USER)
         );
 
-        ProfileResponseDto responseDto = ProfileResponseDto.builder()
+        return ProfileResponseDto.builder()
             .username(profileUser.getUsername())
             .nickname(profileUser.getNickname())
             .introduce(profileUser.getIntroduce())
             .role(profileUser.getRole())
             .build();
-
-        return responseDto;
     }
 
 
@@ -96,14 +92,12 @@ public class UserService {
 
         profileUser.update(requestDto);
 
-        ProfileResponseDto responseDto = ProfileResponseDto.builder()
+        return ProfileResponseDto.builder()
             .username(profileUser.getUsername())
             .nickname(profileUser.getNickname())
             .introduce(profileUser.getIntroduce())
             .role(profileUser.getRole())
             .build();
-
-        return responseDto;
     }
 
     public void deleteUser(User user) {
