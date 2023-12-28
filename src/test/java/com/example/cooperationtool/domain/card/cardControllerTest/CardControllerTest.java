@@ -1,13 +1,18 @@
 package com.example.cooperationtool.domain.card.cardControllerTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 import com.example.cooperationtool.domain.card.controller.CardController;
 import com.example.cooperationtool.domain.card.dto.CardRequestDto;
 import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.card.service.CardService;
+import com.example.cooperationtool.domain.user.entity.User;
+import com.example.cooperationtool.domain.user.entity.UserRoleEnum;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
+import com.example.cooperationtool.global.security.UserDetailsImpl;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +32,9 @@ public class CardControllerTest {
     @Mock
     private CardService cardService;
 
+    @Mock
+    UserDetailsImpl userDetails;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -35,19 +43,24 @@ public class CardControllerTest {
     @Test
     @DisplayName("Card 생성")
     void testCreateCardSuccess() {
-        //given
-        CardRequestDto requestDto = new CardRequestDto("testtitle");
-        RootResponseDto responseDto = new RootResponseDto("200", "생성 성공", requestDto);
+        // Given
+        CardRequestDto requestDto = new CardRequestDto("Test Card Title");
 
-        //when
-        given(cardService.createCard(requestDto)).willReturn(responseDto);
-        ResponseEntity<RootResponseDto> response = cardController.createCard(requestDto);
+        User mockUser = User.builder().username("testUser").password("testPassword")
+            .role(UserRoleEnum.USER).build();
 
-        //then
-        System.out.println("response.getBody() = " + response.getBody().code());
-        System.out.println("response = " + response.getBody().code());
-        assertEquals(response.getBody().code(),responseDto.code());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        UserDetailsImpl mockUserDetails = new UserDetailsImpl(mockUser);
+
+        given(userDetails.getUser()).willReturn(mockUserDetails.getUser());
+        given(cardService.createCard(any(CardRequestDto.class), any(User.class)))
+            .willReturn(new RootResponseDto("200", "생성 완료", null));
+
+        // When
+        ResponseEntity<?> response = cardController.createCard(requestDto, mockUserDetails);
+
+        // Then
+        assertEquals(200, response.getStatusCodeValue());
+        verify(cardService).createCard(requestDto, mockUser);//controller -> service
     }
 
     @Test
@@ -57,29 +70,86 @@ public class CardControllerTest {
         List<CardResponseDto> cardResponseDto = Collections.singletonList(
             CardResponseDto.builder().title("TestCard").build()
         );
+        User mockUser = User.builder().username("testUser").password("testPassword")
+            .role(UserRoleEnum.USER).build();
+
+        UserDetailsImpl mockUserDetails = new UserDetailsImpl(mockUser);
+
+        given(userDetails.getUser()).willReturn(mockUserDetails.getUser());
+
+        given(cardService.getCards(userDetails.getUser())).willReturn(cardResponseDto);
+
         //when
-        given(cardService.getCards()).willReturn(cardResponseDto);
-        ResponseEntity<List<CardResponseDto>> response = cardController.getCards();
+        ResponseEntity<List<?>> response = cardController.getCards(mockUserDetails);
 
         //then
         assertEquals(cardResponseDto, response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(cardService).getCards(mockUser);
     }
 
     @Test
     @DisplayName("Card 단건조회")
     void testGet(){
-        //given
+        //give
         Long cardId = 1L;
-        RootResponseDto rootResponseDto = new RootResponseDto("200","조회 완료",
-            CardResponseDto.builder().id(cardId).title("TestTitle").build());
+        RootResponseDto rootResponseDto = new RootResponseDto("200","조회 완료", null);
+
+        User mockUser = User.builder().username("testUser").password("testPassword")
+            .role(UserRoleEnum.USER).build();
+
+        UserDetailsImpl mockUserDetails = new UserDetailsImpl(mockUser);
+
+        given(userDetails.getUser()).willReturn(mockUserDetails.getUser());
+        given(cardService.getCard(cardId,mockUser)).willReturn(rootResponseDto);
 
         //when
-        given(cardService.getCard(cardId)).willReturn(rootResponseDto);
-        ResponseEntity<RootResponseDto> response = cardController.getCard(cardId);
+        ResponseEntity<?> response = cardController.getCard(cardId, mockUserDetails);
 
         //then
         System.out.println("response.getBody() = " + response.getBody());
-        assertEquals(response.getBody().code(),rootResponseDto.code());
+        assertEquals(rootResponseDto.code(),"200");
+        verify(cardService).getCard(cardId,mockUser);
+    }
+
+    @Test
+    @DisplayName("Card 수정")
+    void modifyCard(){
+        //given
+        Long cardId = 1L;
+        RootResponseDto rootResponseDto = new RootResponseDto("200","수정 완료",null);
+        CardRequestDto requestDto = new CardRequestDto("UpdateTitle");
+
+        User mockUser = User.builder().username("testUser").password("testPassword").role(UserRoleEnum.USER).build();
+        UserDetailsImpl mockUserDetails = new UserDetailsImpl(mockUser);
+
+        given(userDetails.getUser()).willReturn(mockUserDetails.getUser());
+        given(cardService.modifyCard(cardId, requestDto, mockUser)).willReturn(rootResponseDto);
+        //when
+        ResponseEntity<?> response = cardController.modifyCard(cardId, requestDto, mockUserDetails);
+
+        //then
+        assertEquals(response.getStatusCode().toString(), "200 OK");
+        verify(cardService).modifyCard(cardId, requestDto, mockUser);
+    }
+
+    @Test
+    @DisplayName("Card 삭제")
+    void deleteTest(){
+        //given
+        Long cardId = 1L;
+        RootResponseDto rootResponseDto = new RootResponseDto("200","삭제완료",null);
+
+        User mockUser = User.builder().username("testUser").password("testPassword").role(UserRoleEnum.USER).build();
+        UserDetailsImpl mockUserDetails = new UserDetailsImpl(mockUser);
+
+        given(userDetails.getUser()).willReturn(mockUserDetails.getUser());
+        given(cardService.deleteCard(cardId,mockUser)).willReturn(rootResponseDto);
+        //when
+        ResponseEntity<?> response = cardController.deleteCard(cardId, mockUserDetails);
+
+        //then
+        assertEquals(response.getStatusCode().toString(),"200 OK");
+        verify(cardService).deleteCard(cardId,mockUser);
     }
 }
