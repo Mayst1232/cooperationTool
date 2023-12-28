@@ -1,11 +1,14 @@
 package com.example.cooperationtool.domain.card.entity;
 
 import com.example.cooperationtool.domain.model.BaseEntity;
+import com.example.cooperationtool.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +29,9 @@ public class Card extends BaseEntity {
 
     @Column(nullable = false)
     private String title;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 
     public void setCard(String title){
         this.title = title;
