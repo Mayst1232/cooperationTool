@@ -1,9 +1,12 @@
 package com.example.cooperationtool.domain.user.service;
 
 import static com.example.cooperationtool.global.exception.ErrorCode.DUPLICATE_USERNAME;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_EXIST_USER;
 import static com.example.cooperationtool.global.exception.ErrorCode.WRONG_ADMIN_CODE;
 
+import com.example.cooperationtool.domain.user.dto.request.ModifyProfileRequestDto;
 import com.example.cooperationtool.domain.user.dto.request.SignupRequestDto;
+import com.example.cooperationtool.domain.user.dto.response.ProfileResponseDto;
 import com.example.cooperationtool.domain.user.dto.response.SignupResponseDto;
 import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.domain.user.entity.UserRoleEnum;
@@ -13,6 +16,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -66,4 +70,39 @@ public class UserService {
 
         return responseDto;
     }
+
+    public ProfileResponseDto getProfile(User user) {
+        User profileUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        ProfileResponseDto responseDto = ProfileResponseDto.builder()
+            .username(profileUser.getUsername())
+            .nickname(profileUser.getNickname())
+            .introduce(profileUser.getIntroduce())
+            .role(profileUser.getRole())
+            .build();
+
+        return responseDto;
+    }
+
+
+    @Transactional
+    public ProfileResponseDto modifyProfile(User user, ModifyProfileRequestDto requestDto) {
+        User profileUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        profileUser.update(requestDto);
+
+        ProfileResponseDto responseDto = ProfileResponseDto.builder()
+            .username(profileUser.getUsername())
+            .nickname(profileUser.getNickname())
+            .introduce(profileUser.getIntroduce())
+            .role(profileUser.getRole())
+            .build();
+
+        return responseDto;
+    }
+
 }
