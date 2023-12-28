@@ -5,9 +5,7 @@ import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.card.exception.NotFoundCardException;
 import com.example.cooperationtool.domain.card.service.CardService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
-import com.example.cooperationtool.global.exception.ErrorCode;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
-import jakarta.persistence.criteria.Root;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +36,7 @@ public class CardController {
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RootResponseDto.builder()
-                .code("400")
+                .code("404")
                 .message("권한 오류")
                 .build());
         }
@@ -52,7 +50,7 @@ public class CardController {
         }catch (NotFoundCardException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 Collections.singletonList(RootResponseDto.builder()
-                    .code("400")
+                    .code("404")
                     .message("권한 오류")
                     .build()));
         }
@@ -65,7 +63,7 @@ public class CardController {
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (NotFoundCardException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RootResponseDto.builder()
-                .code("400")
+                .code("404")
                 .message("권한 오류")
                 .build());
         }
@@ -78,7 +76,7 @@ public class CardController {
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (NotFoundCardException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RootResponseDto.builder()
-                .code("400")
+                .code("404")
                 .message("권한 오류")
                 .build());
         }
@@ -91,7 +89,7 @@ public class CardController {
             return ResponseEntity.ok().body("성공적으로 삭제되었습니다.");
         }catch (NullPointerException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RootResponseDto.builder()
-                .code("400")
+                .code("404")
                 .message("권한 오류")
                 .build());
         }
