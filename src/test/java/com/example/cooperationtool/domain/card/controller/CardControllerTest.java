@@ -1,11 +1,10 @@
-package com.example.cooperationtool.domain.card.cardControllerTest;
+package com.example.cooperationtool.domain.card.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-import com.example.cooperationtool.domain.card.controller.CardController;
 import com.example.cooperationtool.domain.card.dto.CardRequestDto;
 import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.card.service.CardService;
