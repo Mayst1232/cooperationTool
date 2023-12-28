@@ -21,13 +21,11 @@ public class CardService {
     private final CardRepository cardRepository;
 
     public RootResponseDto createCard(CardRequestDto cardRequestDto, User user) {
-        User byUser = findByUser(user);
-        Card card = cardRepository.save(Card.builder()
-            .user(byUser)
-            .title(cardRequestDto.getTitle())
-            .build());
+            Card saveCard = Card.builder().title(cardRequestDto.getTitle()).build();
+            saveCard.setUser(user);
+            Card card = cardRepository.save(saveCard);
 
-        return new RootResponseDto("200", "생성 완료", card);
+            return new RootResponseDto("200", "생성 완료", card);
     }
 
     public List<CardResponseDto> getCards(User user) {
@@ -41,18 +39,19 @@ public class CardService {
     @Transactional(readOnly = true)
     public RootResponseDto getCard(Long cardId, User user) {
         findByUser(user);
-        Card card = findByCard(cardId);
+        Card card = findByCard(cardId, user);
         return new RootResponseDto("200", "조회 완료", card);
     }
 
     @Transactional
     public RootResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
-        findByUser(user);
-        Card card = findByCard(cardId);
+        Card card = findByCard(cardId, user);
+        card.setUser(user);
+        card.setTitle(requestDto.getTitle());
         if (card != null) {
-            Card modifyCard = cardRepository.save(
-                Card.builder().title(requestDto.getTitle()).build());
-            return new RootResponseDto("200", "수정 성공", modifyCard);
+            card.setUser(user);
+            cardRepository.save(card);
+            return new RootResponseDto("200", "수정 성공",null);
         } else {
             throw new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.");
         }
@@ -60,8 +59,7 @@ public class CardService {
 
     @Transactional
     public RootResponseDto deleteCard(Long cardId, User user) {
-        findByUser(user);
-        Card card = findByCard(cardId);
+        Card card = findByCard(cardId,user);
         if (card != null) {
             cardRepository.deleteById(cardId);
             return new RootResponseDto("200", "삭제완료", null);
@@ -72,20 +70,18 @@ public class CardService {
 
     private User findByUser(User user) {
         Long userId = user.getId();
+
         if (userId == null){
             throw new IllegalArgumentException("user null");
         }
 
-        var byId = cardRepository.findById(userId);
-        if(byId.isPresent()){
-            throw new NotFoundWorker("userId", userId.toString(), "해당 ID가 없습니다.");
-        }
-
-        return byId.get().getUser();
+        return cardRepository.findById(userId).orElseThrow(
+            () -> new NotFoundWorker("userId",user.getId().toString(),"UserId를 찾을 수 없음")
+        ).getUser();
     }
 
-    private Card findByCard(Long cardId) {
-        return cardRepository.findById(cardId).orElseThrow(
+    private Card findByCard(Long cardId, User user) {
+        return cardRepository.findByIdAndUser(cardId,user).orElseThrow(
             () -> new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.")
         );
     }
