@@ -21,7 +21,7 @@ public enum ErrorCode {
 
     // card (4000)
     NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000","Card 생성 실패."),
-    NOT_FOUND_WORKER(HttpStatus.NOT_FOUND,"4000","존재하지 않는 Worker입니다..");
+    NOT_FOUND_WORKER(HttpStatus.NOT_FOUND,"4001","존재하지 않는 Worker.");
 
 
     // comment (5000)
