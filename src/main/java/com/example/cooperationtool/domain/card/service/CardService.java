@@ -11,6 +11,7 @@ import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +22,13 @@ public class CardService {
     private final CardRepository cardRepository;
 
     public RootResponseDto createCard(CardRequestDto cardRequestDto, User user) {
-            Card saveCard = Card.builder().title(cardRequestDto.getTitle()).build();
-            saveCard.setUser(user);
-            Card card = cardRepository.save(saveCard);
+        findByUser(user);
+        Card card = cardRepository.save(Card.builder()
+            .user(user)
+            .title(cardRequestDto.getTitle())
+            .build());
 
-            return new RootResponseDto("200", "생성 완료", card);
+        return new RootResponseDto("200","생성 완료",card);
     }
 
     public List<CardResponseDto> getCards(User user) {
@@ -39,50 +42,43 @@ public class CardService {
     @Transactional(readOnly = true)
     public RootResponseDto getCard(Long cardId, User user) {
         findByUser(user);
-        Card card = findByCard(cardId, user);
-        return new RootResponseDto("200", "조회 완료", card);
+        Card card = findByCard(cardId);
+        return new RootResponseDto("200","조회 완료", card);
     }
 
     @Transactional
     public RootResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
-        Card card = findByCard(cardId, user);
-        card.setUser(user);
-        card.setTitle(requestDto.getTitle());
-        if (card != null) {
-            card.setUser(user);
-            cardRepository.save(card);
-            return new RootResponseDto("200", "수정 성공",null);
-        } else {
+        findByUser(user);
+        Card card = findByCard(cardId);
+        if(card != null){
+            Card modifyCard = cardRepository.save(Card.builder().title(requestDto.getTitle()).build());
+            return new RootResponseDto("200","수정 성공",modifyCard);
+        }else{
             throw new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.");
         }
     }
 
     @Transactional
-    public RootResponseDto deleteCard(Long cardId, User user) {
-        Card card = findByCard(cardId,user);
-        if (card != null) {
+    public void deleteCard(Long cardId, User user) {
+        findByUser(user);
+        Card card = findByCard(cardId);
+        if(card != null){
             cardRepository.deleteById(cardId);
-            return new RootResponseDto("200", "삭제완료", null);
-        } else {
+            ResponseEntity.ok().body("성공적으로 삭제되었습니다.");
+        }else {
             throw new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.");
         }
     }
 
-    private User findByUser(User user) {
-        Long userId = user.getId();
-
-        if (userId == null){
-            throw new IllegalArgumentException("user null");
-        }
-
-        return cardRepository.findById(userId).orElseThrow(
-            () -> new NotFoundWorker("userId",user.getId().toString(),"UserId를 찾을 수 없음")
-        ).getUser();
+    private void findByUser(User user) {
+        cardRepository.findById(user.getId()).orElseThrow(
+            () -> new NotFoundWorker("userId", user.getId().toString(),"해당 ID가 없습니다.")
+        );
     }
 
-    private Card findByCard(Long cardId, User user) {
-        return cardRepository.findByIdAndUser(cardId,user).orElseThrow(
-            () -> new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.")
+    private Card findByCard(Long cardId) {
+        return cardRepository.findById(cardId).orElseThrow(
+            () -> new NotFoundCardException("cardId", cardId.toString(),"Card를 찾을 수 없습니다.")
         );
     }
 
