@@ -40,4 +40,14 @@ public class BoardService {
 
         boardRepository.delete(board);
     }
+
+    public BoardResponseDto updateBoard(Long boardId, BoardRequestDto boardRequestDto, User user) {
+        Board board = boardRepository.findById(boardId)
+            .orElseThrow(() -> new ServiceException(NOT_FOUND_BOARD));
+        if (!user.equals(board.getUser())) {
+            throw new ServiceException(NOT_MATCH_USER);
+        }
+        board.update(boardRequestDto);
+        return new BoardResponseDto(board);
+    }
 }
