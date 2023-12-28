@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,6 +62,18 @@ public class AdminController {
             .code("200")
             .message("해당 유저의 정보를 수정하였습니다.")
             .data(responseDto)
+            .build());
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<?> deleteUserAdmin(@PathVariable(name = "userId") Long userId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        userService.deleteUserAdmin(userDetails.getUser(), userId);
+
+        return ResponseEntity.ok(RootResponseDto.builder()
+            .code("200")
+            .message("해당 유저를 탈퇴시켰습니다.")
             .build());
     }
 }
