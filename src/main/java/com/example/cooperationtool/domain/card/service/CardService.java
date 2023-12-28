@@ -19,7 +19,6 @@ public class CardService {
 
     private final CardRepository cardRepository;
 
-    @Transactional
     public RootResponseDto createCard(CardRequestDto cardRequestDto) {
         Card card = cardRepository.save(Card.builder().title(cardRequestDto.getTitle()).build());
         return new RootResponseDto("200","생성 완료",card);
@@ -61,11 +60,9 @@ public class CardService {
     }
 
     private Card extracted(Long cardId) {
-        Card card = cardRepository.findById(cardId).orElseThrow(
+        return cardRepository.findById(cardId).orElseThrow(
             () -> new NotFoundCardException("cardId", cardId.toString(),"Card를 찾을 수 없습니다.")
         );
-        return card;
     }
-
 
 }
