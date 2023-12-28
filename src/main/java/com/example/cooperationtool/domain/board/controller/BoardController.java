@@ -46,4 +46,18 @@ public class BoardController {
                 .message("보드 삭제 성공")
             .build());
     }
+
+    @PatchMapping("/boards/{boardId}")
+    public ResponseEntity<?> updateBoard(
+        @PathVariable Long boardId,
+        @RequestBody BoardRequestDto requestDto,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        BoardResponseDto responseDto =
+            boardService.updateBoard(boardId, requestDto, userDetails.getUser());
+        return ResponseEntity.ok(RootResponseDto.builder()
+                .code("200")
+                .message("보드 수정 성공")
+                .data(responseDto)
+            .build());
+    }
 }
