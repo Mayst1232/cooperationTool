@@ -3,6 +3,7 @@ package com.example.cooperationtool.domain.admin.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -133,6 +134,26 @@ class AdminControllerTest {
                     status().isOk(),
                     jsonPath("$.code").value("200"),
                     jsonPath("$.message").value("해당 유저의 정보를 수정하였습니다.")
+                );
+        }
+    }
+
+    @Nested
+    @DisplayName("관리자 특정 유저 삭제")
+    class DeleteUserAdmin {
+
+        @Test
+        void success() throws Exception {
+            mockUserSetup();
+
+            Long userId = 2L;
+
+            mockMvc.perform(delete("/api/admin/users/{userId}", userId)
+                    .principal(mockPrincipal))
+                .andExpectAll(
+                    status().isOk(),
+                    jsonPath("$.code").value("200"),
+                    jsonPath("$.message").value("해당 유저를 탈퇴시켰습니다.")
                 );
         }
     }
