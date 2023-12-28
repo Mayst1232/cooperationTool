@@ -3,6 +3,7 @@ package com.example.cooperationtool.domain.user.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -149,6 +150,22 @@ class UserControllerTest {
                     jsonPath("$.message").value("유저 정보 변경 성공"),
                     jsonPath("$.data.nickname").value(requestDto.getNickname())
                 );
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 정보 삭제")
+    class DeleteUser {
+
+        @Test
+        void success() throws Exception {
+            mockUserSetup();
+
+            mockMvc.perform(delete("/api/user")
+                    .principal(mockPrincipal))
+                .andExpectAll(status().isOk(),
+                    jsonPath("$.code").value("200"),
+                    jsonPath("$.message").value("유저 탈퇴 성공"));
         }
     }
 }
