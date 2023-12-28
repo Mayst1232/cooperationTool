@@ -1,4 +1,4 @@
-package com.example.cooperationtool.card.cardControllerTest;
+package com.example.cooperationtool.domain.card.cardControllerTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -70,11 +70,16 @@ public class CardControllerTest {
     @DisplayName("Card 단건조회")
     void testGet(){
         //given
-        CardResponseDto cardResponseDto;
+        Long cardId = 1L;
+        RootResponseDto rootResponseDto = new RootResponseDto("200","조회 완료",
+            CardResponseDto.builder().id(cardId).title("TestTitle").build());
 
         //when
-
+        given(cardService.getCard(cardId)).willReturn(rootResponseDto);
+        ResponseEntity<RootResponseDto> response = cardController.getCard(cardId);
 
         //then
+        System.out.println("response.getBody() = " + response.getBody());
+        assertEquals(response.getBody().code(),rootResponseDto.code());
     }
 }
