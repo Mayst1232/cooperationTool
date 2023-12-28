@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +33,7 @@ public class Card extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
+    @Size(max = 20)
     private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
