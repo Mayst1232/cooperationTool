@@ -6,7 +6,6 @@ import com.example.cooperationtool.domain.card.exception.NotFoundCardException;
 import com.example.cooperationtool.domain.card.service.CardService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,69 +28,53 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping
-    public ResponseEntity<?> createCard(@RequestBody CardRequestDto cardRequestDto, @AuthenticationPrincipal
+    public ResponseEntity<RootResponseDto> createCard(@RequestBody CardRequestDto cardRequestDto, @AuthenticationPrincipal
         UserDetailsImpl userDetails){
         try {
             RootResponseDto rootResponseDto = cardService.createCard(cardRequestDto,userDetails.getUser());
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RootResponseDto.builder()
-                .code("404")
-                .message("권한 오류")
-                .build());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<?>> getCards(@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<List<CardResponseDto>> getCards(@AuthenticationPrincipal UserDetailsImpl userDetails){
         try {
             List<CardResponseDto> cardResponseDtos = cardService.getCards(userDetails.getUser());
             return ResponseEntity.ok().body(cardResponseDtos);
         }catch (NotFoundCardException ex){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                Collections.singletonList(RootResponseDto.builder()
-                    .code("404")
-                    .message("권한 오류")
-                    .build()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
     @GetMapping("/{cardId}")
-    public ResponseEntity<?> getCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<RootResponseDto> getCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails){
         try {
             RootResponseDto rootResponseDto = cardService.getCard(cardId, userDetails.getUser());
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (NotFoundCardException ex){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RootResponseDto.builder()
-                .code("404")
-                .message("권한 오류")
-                .build());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build();
         }
     }
 
     @PatchMapping("/{cardId}")
-    public ResponseEntity<?> modifyCard(@PathVariable Long cardId, @RequestBody CardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<RootResponseDto> modifyCard(@PathVariable Long cardId, @RequestBody CardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
         try {
             RootResponseDto rootResponseDto = cardService.modifyCard(cardId,requestDto,userDetails.getUser());
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (NotFoundCardException ex){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RootResponseDto.builder()
-                .code("404")
-                .message("권한 오류")
-                .build());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build();
         }
     }
 
     @DeleteMapping("/{cardId}")
-    public ResponseEntity<?> deleteCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<String> deleteCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails){
         try {
             cardService.deleteCard(cardId, userDetails.getUser());
             return ResponseEntity.ok().body("성공적으로 삭제되었습니다.");
         }catch (NullPointerException ex){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RootResponseDto.builder()
-                .code("404")
-                .message("권한 오류")
-                .build());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).build();
         }
     }
 }
