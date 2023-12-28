@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,14 +44,14 @@ public class ColumnController {
         return ResponseEntity.ok(columns);
     }
 
-    @GetMapping("/columns")
+    @GetMapping("/columns/{columnid}")
     public ResponseEntity<ColumnResponseDto> getColumnById(@PathVariable Long columnId) {
         ColumnResponseDto column = columnService.getColumnById(columnId);
         return ResponseEntity.ok(column);
     }
 
 
-    @PatchMapping("/columns/{id}")
+    @PatchMapping("/columns/{columnid}")
     public ResponseEntity<?> updateColumnName(
         @PathVariable Long columnId,
         @RequestParam String newName) {
@@ -58,6 +59,17 @@ public class ColumnController {
         return ResponseEntity.ok(RootResponseDto.builder()
             .code("200")
             .message("컬럼 이름 수정 성공")
+            .build());
+    }
+
+    @DeleteMapping("/columns/{columnid}")
+    public ResponseEntity<?> deleteColumn(
+        @PathVariable Long columnId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails){
+        columnService.deleteColumn(columnId, userDetails.getUser());
+        return ResponseEntity.ok(RootResponseDto.builder()
+            .code("200")
+            .message("컬럼 삭제 성공")
             .build());
     }
 }

@@ -74,4 +74,14 @@ public class ColumnService {
         }
         columnRepository.saveAll(columns);
     }
+
+    public void deleteColumn(Long columnId, User user) {
+        Column column = columnRepository.findById(columnId)
+            .orElseThrow(() -> new IllegalArgumentException("해당하는 컬럼을 찾을 수 없습니다"));
+        if (!user.equals(column.getUser())) {
+            throw new RuntimeException("사용자가 일치하지 않음");
+        }
+
+        columnRepository.delete(column);
+    }
 }
