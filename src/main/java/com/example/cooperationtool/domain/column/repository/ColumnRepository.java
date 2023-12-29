@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ColumnRepository extends JpaRepository<Columns, Long> {
-        @Query("SELECT c FROM Columns c WHERE c.name = :name")
+        @Query
         Optional<Columns> findByName(@Param("name") String name);
         @Query
         List<Columns> findByBoardIdOrderByOrderAsc(Long boardId);
