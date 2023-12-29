@@ -32,4 +32,8 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt; // 수정일자
+
+    public void updateModifiedAt(LocalDateTime now) {
+        this.modifiedAt = now;
+    }
 }
