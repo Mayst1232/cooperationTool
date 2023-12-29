@@ -43,6 +43,8 @@ public class CardServiceTest {
         //given
         User mockUser = User.builder().username("testUserName").password("testPassword").role(UserRoleEnum.USER).build();
         UserDetailsImpl mockUserDetails = new UserDetailsImpl(mockUser);
+        given(userDetails.getUser()).willReturn(mockUserDetails.getUser());
+
         Card saveCard = Card.builder().id(1L).title("testTitle1").build();
         CardRequestDto requestDto = new CardRequestDto("testTitle");
 
