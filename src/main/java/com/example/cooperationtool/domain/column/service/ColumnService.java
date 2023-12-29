@@ -50,11 +50,9 @@ public class ColumnService {
 
         Columns savedColumns = columnRepository.save(columns);
 
-        ColumnResponseDto responseDto = ColumnResponseDto.builder()
+        return ColumnResponseDto.builder()
             .columns(savedColumns)
             .build();
-
-        return responseDto;
     }
 
     public ColumnResponseDto updateColumnName(Long columnId, String title) {
@@ -64,11 +62,9 @@ public class ColumnService {
         columns.setTitle(title);
         columnRepository.save(columns);
 
-        ColumnResponseDto responseDto = ColumnResponseDto.builder()
+        return ColumnResponseDto.builder()
             .columns(columns)
             .build();
-
-        return responseDto;
     }
 
     public List<ColumnResponseDto> getAllColumns() {
