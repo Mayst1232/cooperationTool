@@ -29,13 +29,12 @@ public enum ErrorCode {
 
     // column (3000)
     NOT_FOUND_COLUMN(HttpStatus.BAD_REQUEST,"3000","해당하는 컬럼을 찾을 수 없습니다"),
-    NOT_IN_COLUMN(HttpStatus.BAD_REQUEST,"3001","컬럼이 현재 보드에 속해있지 않습니다")
+    NOT_IN_COLUMN(HttpStatus.BAD_REQUEST,"3001","컬럼이 현재 보드에 속해있지 않습니다"),
 
     // card (4000)
-
+    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000","카드 조회 실패");
 
     // comment (5000)
-    ;
 
     private final HttpStatus status;
     private final String code;
