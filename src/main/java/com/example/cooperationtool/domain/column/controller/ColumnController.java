@@ -29,8 +29,9 @@ public class ColumnController {
     @PostMapping("/columns")
     public ResponseEntity<?> createColumn(
         @RequestBody ColumnRequestDto columnRequestDto,
-        @AuthenticationPrincipal UserDetailsImpl userDetails){
-        ColumnResponseDto columnReposeDto = columnService.createColumn(columnRequestDto, userDetails.getUser());
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ColumnResponseDto columnReposeDto = columnService.createColumn(columnRequestDto,
+            userDetails.getUser());
         return ResponseEntity.ok(RootResponseDto.builder()
             .code("201")
             .message("컬럼 생성 성공")
@@ -39,37 +40,39 @@ public class ColumnController {
     }
 
     @GetMapping("/columns")
-    public ResponseEntity<List<ColumnResponseDto>> getAllColumn(){
+    public ResponseEntity<List<ColumnResponseDto>> getAllColumn() {
         List<ColumnResponseDto> columns = columnService.getAllColumns();
         return ResponseEntity.ok(columns);
     }
 
-    @GetMapping("/columns/{columnid}")
+    @GetMapping("/columns/{columnId}")
     public ResponseEntity<ColumnResponseDto> getColumnById(@PathVariable Long columnId) {
         ColumnResponseDto column = columnService.getColumnById(columnId);
         return ResponseEntity.ok(column);
     }
 
 
-    @PatchMapping("/columns/{columnid}")
+    @PatchMapping("/columns/{columnId}")
     public ResponseEntity<?> updateColumnName(
         @PathVariable Long columnId,
-        @RequestParam String newName) {
-        columnService.updateColumnName(columnId, newName);
+        @RequestParam String title) {
+        ColumnResponseDto responsedto = columnService.updateColumnName(columnId, title);
         return ResponseEntity.ok(RootResponseDto.builder()
             .code("200")
             .message("컬럼 이름 수정 성공")
+            .data(responsedto)
             .build());
     }
 
-    @DeleteMapping("/columns/{columnid}")
+    @DeleteMapping("/columns/{columnId}")
     public ResponseEntity<?> deleteColumn(
         @PathVariable Long columnId,
-        @AuthenticationPrincipal UserDetailsImpl userDetails){
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         columnService.deleteColumn(columnId, userDetails.getUser());
         return ResponseEntity.ok(RootResponseDto.builder()
             .code("200")
             .message("컬럼 삭제 성공")
             .build());
     }
+
 }
