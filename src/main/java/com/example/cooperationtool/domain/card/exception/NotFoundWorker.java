@@ -4,7 +4,7 @@ import com.example.cooperationtool.global.exception.ErrorCode;
 
 public class NotFoundWorker extends RuntimeException{
 
-    public NotFoundWorker(String cardId, String value, String reason) {
+    public NotFoundWorker(String userId, String value, String reason) {
         super(
             ErrorCode.NOT_FOUND_WORKER.getMessage()
         );

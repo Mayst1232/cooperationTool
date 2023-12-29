@@ -28,8 +28,8 @@ public enum ErrorCode {
     NOT_IN_COLUMN(HttpStatus.BAD_REQUEST,"3001","컬럼이 현재 보드에 속해있지 않습니다"),
 
     // card (4000)
-    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000","Card 생성 실패."),
-    NOT_FOUND_WORKER(HttpStatus.NOT_FOUND,"4001","존재하지 않는 Worker.");
+    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000","카드 조회 실패"),
+    NOT_FOUND_WORKER(HttpStatus.BAD_REQUEST,"4001","유저 조회 실패");
 
     // comment (5000)
 

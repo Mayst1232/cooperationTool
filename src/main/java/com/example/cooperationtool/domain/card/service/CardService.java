@@ -79,13 +79,13 @@ public class CardService {
 
     private static void checkAuthority(User user, Card card) {
         if(!card.getUser().getId().equals(user.getId())){
-            throw new NotFoundWorker("userId", user.getId().toString(),"작성자가 아닙니다.");
+            throw new ServiceException(ErrorCode.NOT_FOUND_WORKER);
         }
     }
 
     private Card findByCard(Long cardId) {
         return cardRepository.findById(cardId).orElseThrow(
-            () -> new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.")
+            () -> new ServiceException(ErrorCode.NOT_FOUND_CARD)
         );
     }
 }
