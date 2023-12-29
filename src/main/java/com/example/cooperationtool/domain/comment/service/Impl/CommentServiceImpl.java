@@ -9,6 +9,7 @@ import com.example.cooperationtool.domain.comment.service.CommentService;
 import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.global.exception.ErrorCode;
 import com.example.cooperationtool.global.exception.ServiceException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,19 @@ public class CommentServiceImpl implements CommentService {
             .build();
 
         commentRepository.save(comment);
+        return new CommentResponseDto(comment);
+    }
+
+    @Transactional
+    @Override
+    public CommentResponseDto updateComment(CommentRequestDto commentRequestDto, User user, Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
+            new ServiceException(ErrorCode.NOT_FOUND_COMMENT));
+
+        if (!user.getId().equals(comment.getUser().getId())) {
+            throw new ServiceException(ErrorCode.NOT_MATCH_USER);
+        }
+        comment.modifyContent(commentRequestDto.getContent());
         return new CommentResponseDto(comment);
     }
 }
