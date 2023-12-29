@@ -22,22 +22,11 @@ import lombok.Setter;
 @Setter
 public class Columns extends BaseEntity {
 
-
+    @Column(nullable = false)
+    private String title;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private int sort;
-
-    public void sortUp(){
-        this.sort = Math.max(0, this.sort - 1);
-
-    }
-
-    public void sortDown(){
-        this.sort = this.sort + 1;
-    }
+    private Long priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -48,11 +37,14 @@ public class Columns extends BaseEntity {
     private Board board;
 
     @Builder
-    private Columns(String name, int sort, User user, Board board){
-        this.name = name;
-        this.sort = sort;
+    private Columns(String title, Long priority, User user, Board board) {
+        this.title = title;
+        this.priority = priority;
         this.user = user;
         this.board = board;
     }
 
+    public void move(Long wantPriority) {
+        this.priority = wantPriority;
+    }
 }
