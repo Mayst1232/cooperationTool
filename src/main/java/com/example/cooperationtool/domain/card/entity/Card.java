@@ -3,7 +3,6 @@ package com.example.cooperationtool.domain.card.entity;
 import com.example.cooperationtool.domain.model.BaseEntity;
 import com.example.cooperationtool.domain.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,13 +38,11 @@ public class Card extends BaseEntity {
     @JsonIgnore
     private User user;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime modifiedAt;
 
     public void updateTitle(String title) {
         this.title = title;
     }
-
     public void updateModifiedAt(LocalDateTime now) {
         this.modifiedAt = now;
     }
