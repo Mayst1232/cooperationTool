@@ -2,7 +2,9 @@ package com.example.cooperationtool.domain.board.controller;
 
 import com.example.cooperationtool.domain.board.dto.BoardViewResponseDto;
 import com.example.cooperationtool.domain.board.dto.request.BoardRequestDto;
+import com.example.cooperationtool.domain.board.dto.request.InviteBoardRequestDto;
 import com.example.cooperationtool.domain.board.dto.response.BoardResponseDto;
+import com.example.cooperationtool.domain.board.entity.Board;
 import com.example.cooperationtool.domain.board.service.BoardService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
@@ -66,12 +68,25 @@ public class BoardController {
 
     @GetMapping("/boards")
     public ResponseEntity<?> getBoards(
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam(name = "type", required = true, defaultValue = "all") String type) {
-        List<BoardViewResponseDto> responseDto = boardService.getBoards(type);
+        List<BoardViewResponseDto> responseDto = boardService.getBoards(userDetails.getUser(), type);
         return ResponseEntity.ok(RootResponseDto.builder()
                 .code("200")
                 .message("보드 조회 성공")
                 .data(responseDto)
+            .build());
+    }
+
+    @PostMapping("/boards/{boardId}/invite")
+    public ResponseEntity<?> inviteBoard(
+        @PathVariable (name = "boardId") Long boardId,
+        @RequestBody InviteBoardRequestDto requestDto,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        boardService.inviteBoard(boardId, requestDto.getUserId(), userDetails.getUser());
+        return ResponseEntity.ok(RootResponseDto.builder()
+                .code("200")
+                .message("유저 초대 성공")
             .build());
     }
 }
