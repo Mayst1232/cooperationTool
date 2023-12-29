@@ -1,10 +1,14 @@
 package com.example.cooperationtool.domain.column.service;
 
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_FOUND_COLUMN;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_IN_COLUMN;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_MATCH_USER;
 import com.example.cooperationtool.domain.column.dto.ColumnRequestDto;
 import com.example.cooperationtool.domain.column.dto.ColumnResponseDto;
 import com.example.cooperationtool.domain.column.entity.Columns;
 import com.example.cooperationtool.domain.column.repository.ColumnRepository;
 import com.example.cooperationtool.domain.user.entity.User;
+import com.example.cooperationtool.global.exception.ServiceException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +33,7 @@ public class ColumnService {
 
         public void updateColumnName(Long columnId, String newName) {
             Columns columns = columnRepository.findById(columnId)
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 컬럼을 찾을 수 없습니다"));
+                .orElseThrow(() -> new ServiceException(NOT_FOUND_COLUMN));
 
             columns.setName(newName);
             columnRepository.save(columns);
@@ -44,20 +48,20 @@ public class ColumnService {
 
     public ColumnResponseDto getColumnById(Long columnId) {
         Columns columns = columnRepository.findById(columnId)
-            .orElseThrow(() -> new IllegalArgumentException("해당하는 컬럼을 찾을 수 없습니다"));
+            .orElseThrow(() -> new ServiceException(NOT_FOUND_COLUMN));
         return new ColumnResponseDto(columns);
     }
 
     public void sortColumn(Long columnId, boolean sortUp) {
         Columns column = columnRepository.findById(columnId)
-            .orElseThrow(() -> new IllegalArgumentException("해당하는 컬럼을 찾을 수 없습니다"));
+            .orElseThrow(() -> new ServiceException(NOT_FOUND_COLUMN));
 
         List<Columns> columns = columnRepository.findByBoardIdOrderByOrderAsc(column.getBoard().getId());
 
         int currentIndex = columns.indexOf(column);
 
         if (currentIndex == -1) {
-            throw new IllegalArgumentException("컬럼이 현재 보드에 속해있지 않습니다");
+            throw new ServiceException(NOT_IN_COLUMN);
         }
 
         int newIndex = sortUp ? Math.max(0, currentIndex - 1) : Math.min(columns.size() - 1, currentIndex + 1);
@@ -77,9 +81,9 @@ public class ColumnService {
 
     public void deleteColumn(Long columnId, User user) {
         Columns columns = columnRepository.findById(columnId)
-            .orElseThrow(() -> new IllegalArgumentException("해당하는 컬럼을 찾을 수 없습니다"));
+            .orElseThrow(() -> new ServiceException(NOT_FOUND_COLUMN));
         if (!user.equals(columns.getUser())) {
-            throw new RuntimeException("사용자가 일치하지 않음");
+            throw new ServiceException(NOT_MATCH_USER);
         }
 
         columnRepository.delete(columns);
