@@ -16,12 +16,14 @@ public class CardResponseDto{
     private Long id;
     private String title;
     private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
     public static CardResponseDto of(Card card) {
         return CardResponseDto.builder()
             .id(card.getId())
             .title(card.getTitle())
             .createdAt(card.getCreatedAt())
+            .modifiedAt(card.getModifiedAt())
             .build();
     }
 }
