@@ -1,29 +1,22 @@
 spring:
-  profiles:
-    default: local
   datasource:
-    username: ${DB_USERNAME}
-    password: ${DB_PASS}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL}
+    username: sa
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db
   jpa:
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    show-sql: true
     properties:
       hibernate:
+        show_sql: true
         format_sql: true
         use_sql_comments: true
-<<<<<<< HEAD
-=======
   h2:
     console:
       enabled: true
 jwt:
   secret:
     key: 7Iqk7YyM66W07YOA7L2U65Sp7YG065+9U3ByaW5n6rCV7J2Y7Yqc7YSw7LWc7JuQ67mI7J6F64uI64ukLg==
->>>>>>> origin/dev
 
 server:
   servlet:
@@ -31,12 +24,6 @@ server:
       charset: UTF-8
       force: true
 
-<<<<<<< HEAD
-jwt:
-  secret:
-    key: ${JWT_KEY}
-=======
 logging:
   level:
     org.springframework.security: debug
->>>>>>> origin/dev
