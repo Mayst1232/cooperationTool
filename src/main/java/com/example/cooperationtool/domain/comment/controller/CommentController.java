@@ -7,6 +7,7 @@ import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,6 +48,21 @@ public class CommentController {
         return  ResponseEntity.ok(RootResponseDto.builder()
             .code("200")
             .message("댓글 수정 성공")
+            .data(responseDto)
+            .build()
+        );
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<?> deleteComment(
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @PathVariable Long commentId) {
+
+        CommentResponseDto responseDto = commentService.deleteComment(userDetails.getUser(), commentId);
+
+        return ResponseEntity.ok(RootResponseDto.builder()
+            .code("200")
+            .message("댓글 삭제 성공")
             .data(responseDto)
             .build()
         );
