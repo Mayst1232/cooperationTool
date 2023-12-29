@@ -30,7 +30,7 @@ public class CardController {
 
     @PostMapping
     public ResponseEntity<?> createCard(@RequestBody CardRequestDto cardRequestDto, @AuthenticationPrincipal
-        UserDetailsImpl userDetails){
+    UserDetailsImpl userDetails){
         try {
             RootResponseDto rootResponseDto = cardService.createCard(cardRequestDto,userDetails.getUser());
             return ResponseEntity.ok().body(rootResponseDto);
