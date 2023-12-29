@@ -26,11 +26,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Card extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "card_id")
-    private Long id;
-
     @Column(nullable = false)
     @Size(max = 20)
     private String title;
