@@ -4,7 +4,6 @@ import com.example.cooperationtool.domain.board.dto.BoardViewResponseDto;
 import com.example.cooperationtool.domain.board.dto.request.BoardRequestDto;
 import com.example.cooperationtool.domain.board.dto.request.InviteBoardRequestDto;
 import com.example.cooperationtool.domain.board.dto.response.BoardResponseDto;
-import com.example.cooperationtool.domain.board.entity.Board;
 import com.example.cooperationtool.domain.board.service.BoardService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
@@ -87,6 +86,18 @@ public class BoardController {
         return ResponseEntity.ok(RootResponseDto.builder()
                 .code("200")
                 .message("유저 초대 성공")
+            .build());
+    }
+
+    @DeleteMapping("/boards/{boardId}/invite")
+    public ResponseEntity<?> unInviteBoard(
+        @PathVariable (name = "boardId") Long boardId,
+        @RequestBody InviteBoardRequestDto requestDto,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        boardService.unInviteBoard(boardId, requestDto.getUserId(), userDetails.getUser());
+        return ResponseEntity.ok(RootResponseDto.builder()
+                .code("200")
+                .message("보드 초대 취소")
             .build());
     }
 }
