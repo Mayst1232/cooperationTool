@@ -2,6 +2,7 @@ package com.example.cooperationtool.domain.column.controller;
 
 import com.example.cooperationtool.domain.column.dto.ColumnRequestDto;
 import com.example.cooperationtool.domain.column.dto.ColumnResponseDto;
+import com.example.cooperationtool.domain.column.dto.MoveColumnRequestDto;
 import com.example.cooperationtool.domain.column.service.ColumnService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -75,4 +77,20 @@ public class ColumnController {
             .build());
     }
 
+
+    @PutMapping("/columns/{columnId}")
+    public ResponseEntity<?> moveColumn(
+        @PathVariable(name = "columnId") Long columnId,
+        @RequestBody MoveColumnRequestDto requestDto,
+        @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        List<ColumnResponseDto> responseDtoList = columnService.moveColumn(columnId, requestDto,
+            userDetails.getUser());
+
+        return ResponseEntity.ok(RootResponseDto.builder()
+            .code("200")
+            .message("컬럼 이동 성공")
+            .data(responseDtoList)
+            .build());
+    }
 }
