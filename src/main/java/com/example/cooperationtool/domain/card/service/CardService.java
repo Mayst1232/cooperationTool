@@ -7,7 +7,8 @@ import com.example.cooperationtool.domain.card.exception.NotFoundCardException;
 import com.example.cooperationtool.domain.card.exception.NotFoundWorker;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
 import com.example.cooperationtool.domain.user.entity.User;
-import com.example.cooperationtool.global.dto.response.RootResponseDto;
+import com.example.cooperationtool.global.exception.ErrorCode;
+import com.example.cooperationtool.global.exception.ServiceException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,13 +22,13 @@ public class CardService {
 
     private final CardRepository cardRepository;
 
-    public RootResponseDto createCard(CardRequestDto cardRequestDto, User user) {
+    public CardResponseDto createCard(CardRequestDto cardRequestDto, User user) {
         Card card = cardRepository.save(Card.builder()
             .user(user)
             .title(cardRequestDto.getTitle())
             .build());
 
-        return new RootResponseDto("200", "생성 완료", card);
+        return CardResponseDto.of(card);
     }
 
     public List<CardResponseDto> getCards() {
@@ -38,13 +39,13 @@ public class CardService {
     }
 
     @Transactional(readOnly = true)
-    public RootResponseDto getCard(Long cardId) {
+    public CardResponseDto getCard(Long cardId) {
         Card card = findByCard(cardId);
-        return new RootResponseDto("200", "조회 완료", card);
+        return CardResponseDto.of(card);
     }
 
     @Transactional
-    public RootResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
+    public CardResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
         Card card = findByCard(cardId);
         checkAuthority(user, card);
 
@@ -52,24 +53,26 @@ public class CardService {
             throw new NotFoundWorker("userId",user.getId().toString(),"수정 권한 오류");
         }
 
-        card.updateTitle(requestDto.getTitle());
-        card.updateModifiedAt(LocalDateTime.now());
+        if(card != null){
+            card.updateTitle(requestDto.getTitle());
+            card.updateModifiedAt(LocalDateTime.now());
 
-        cardRepository.save(card);
-
-        return new RootResponseDto("200","수정 완료",CardResponseDto.of(card));
+            cardRepository.save(card);
+            return new CardResponseDto(card);
+        }else{
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
+        }
     }
 
     @Transactional
-    public RootResponseDto deleteCard(Long cardId, User user) {
+    public void deleteCard(Long cardId, User user) {
         Card card = findByCard(cardId);
         checkAuthority(user, card);
 
         if (card != null) {
             cardRepository.deleteById(cardId);
-            return new RootResponseDto("200", "삭제완료", null);
         } else {
-            throw new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.");
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
     }
 
