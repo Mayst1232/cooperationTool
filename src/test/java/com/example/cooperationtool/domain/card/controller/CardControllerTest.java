@@ -75,11 +75,11 @@ public class CardControllerTest {
         given(userDetails.getUser()).willReturn(mockUserDetails.getUser());
 
         //when
-        ResponseEntity<List<?>> response = cardController.getCards(mockUserDetails);
+        ResponseEntity<List<?>> response = cardController.getCards();
 
         //then
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(cardService).getCards(mockUser);
+        verify(cardService).getCards();
     }
 
     @Test
@@ -96,12 +96,12 @@ public class CardControllerTest {
 
         given(userDetails.getUser()).willReturn(mockUserDetails.getUser());
         //when
-        ResponseEntity<?> response = cardController.getCard(cardId, mockUserDetails);
+        ResponseEntity<?> response = cardController.getCard(cardId);
 
         //then
         System.out.println("response.getBody() = " + response.getBody());
         assertEquals(rootResponseDto.code(),"200");
-        verify(cardService).getCard(cardId,mockUser);
+        verify(cardService).getCard(cardId);
     }
 
     @Test
