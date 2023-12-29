@@ -43,9 +43,9 @@ public class CardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<?>> getCards(@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<List<?>> getCards(){
         try {
-            List<CardResponseDto> cardResponseDtos = cardService.getCards(userDetails.getUser());
+            List<CardResponseDto> cardResponseDtos = cardService.getCards();
             return ResponseEntity.ok().body(cardResponseDtos);
         }catch (NotFoundCardException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -57,9 +57,9 @@ public class CardController {
     }
 
     @GetMapping("/{cardId}")
-    public ResponseEntity<?> getCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<?> getCard(@PathVariable Long cardId){
         try {
-            RootResponseDto rootResponseDto = cardService.getCard(cardId, userDetails.getUser());
+            RootResponseDto rootResponseDto = cardService.getCard(cardId);
             return ResponseEntity.ok().body(rootResponseDto);
         }catch (NotFoundCardException ex){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(RootResponseDto.builder()
