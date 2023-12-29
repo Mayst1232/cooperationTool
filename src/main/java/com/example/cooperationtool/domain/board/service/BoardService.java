@@ -4,6 +4,8 @@ import static com.example.cooperationtool.global.exception.ErrorCode.ALREADY_INV
 import static com.example.cooperationtool.global.exception.ErrorCode.ILLEGAL_BOARD_TYPE;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_EXIST_USER;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_FOUND_BOARD;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_INVITED_USER;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_INVITE_MYSELF;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_INVITE_YOURSELF;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_MATCH_BOARD;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_MATCH_USER;
@@ -21,6 +23,7 @@ import com.example.cooperationtool.global.exception.ServiceException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,22 +99,6 @@ public class BoardService {
         return findAllByBoard(boardList);
     }
 
-    private List<BoardViewResponseDto> findAllByBoard(List<Board> boards) {
-        List<BoardViewResponseDto> boardViewResponseDto = new ArrayList<>();
-        for (Board board : boards) {
-            boardViewResponseDto
-                .add(BoardViewResponseDto.builder()
-                    .id(board.getId())
-                    .title(board.getTitle())
-                    .content(board.getContent())
-                    .nickname(board.getUser().getNickname())
-                    .createdAt(board.getCreatedAt())
-                    .modifiedAt(board.getModifiedAt())
-                    .build());
-        }
-        return boardViewResponseDto;
-    }
-
     public void inviteBoard(Long boardId, Long userId, User user) {
         Board checkBoard = boardRepository.findById(boardId)
             .orElseThrow(() -> new ServiceException(NOT_FOUND_BOARD));
@@ -131,5 +118,43 @@ public class BoardService {
             .board(checkBoard)
             .build();
         inviteBoardRepository.save(inviteBoard);
+    }
+
+    public void unInviteBoard(Long boardId, Long userId, User user) {
+        Board checkBoard = boardRepository.findById(boardId)
+            .orElseThrow(() -> new ServiceException(NOT_FOUND_BOARD));
+
+        if (!checkBoard.getUser().getId().equals(user.getId())) {
+            throw new ServiceException(NOT_MATCH_BOARD);
+        }
+        User checkUser = userRepository.findById(userId)
+            .orElseThrow(() -> new ServiceException(NOT_EXIST_USER));
+        if (checkUser.getId().equals(user.getId())) {
+            throw new ServiceException(NOT_INVITE_MYSELF);
+        }
+        Optional<InviteBoard> inviteBoardOptional =
+            inviteBoardRepository.findByUserAndBoard(checkUser, checkBoard);
+        if (inviteBoardOptional.isPresent()) {
+            InviteBoard inviteBoard = inviteBoardOptional.get();
+            inviteBoardRepository.delete(inviteBoard);
+        } else {
+            throw new ServiceException(NOT_INVITED_USER);
+        }
+    }
+
+    private List<BoardViewResponseDto> findAllByBoard(List<Board> boards) {
+        List<BoardViewResponseDto> boardViewResponseDto = new ArrayList<>();
+        for (Board board : boards) {
+            boardViewResponseDto
+                .add(BoardViewResponseDto.builder()
+                    .id(board.getId())
+                    .title(board.getTitle())
+                    .content(board.getContent())
+                    .nickname(board.getUser().getNickname())
+                    .createdAt(board.getCreatedAt())
+                    .modifiedAt(board.getModifiedAt())
+                    .build());
+        }
+        return boardViewResponseDto;
     }
 }
