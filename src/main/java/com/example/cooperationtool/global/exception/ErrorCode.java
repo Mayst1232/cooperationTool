@@ -32,11 +32,10 @@ public enum ErrorCode {
     NOT_IN_COLUMN(HttpStatus.BAD_REQUEST, "3001", "컬럼이 현재 보드에 속해있지 않습니다"),
 
     // card (4000)
-    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000", "카드 조회 실패");
+    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000", "카드 조회 실패")
 
     // comment (5000)
     ;
-
     private final HttpStatus status;
     private final String code;
     private final String message;
