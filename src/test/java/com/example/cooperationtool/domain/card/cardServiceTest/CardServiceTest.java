@@ -36,7 +36,6 @@ public class CardServiceTest {
         given(cardRequestDto.getTitle()).willReturn("testTitle");
 
         Card saveCard = Card.builder()
-            .id(1L)
             .title("testTitle")
             .build();
 
