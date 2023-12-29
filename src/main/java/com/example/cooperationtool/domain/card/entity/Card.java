@@ -48,8 +48,4 @@ public class Card extends BaseEntity {
     public void updateModifiedAt(LocalDateTime now) {
         this.modifiedAt = now;
     }
-
-    public void setCard(String title){
-        this.title = title;
-    }
 }

@@ -7,6 +7,7 @@ import com.example.cooperationtool.domain.card.exception.NotFoundCardException;
 import com.example.cooperationtool.domain.card.exception.NotFoundWorker;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
 import com.example.cooperationtool.domain.user.entity.User;
+import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.exception.ErrorCode;
 import com.example.cooperationtool.global.exception.ServiceException;
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class CardService {
             .title(cardRequestDto.getTitle())
             .build());
 
-        return CardResponseDto.of(card);
+        return new CardResponseDto(card);
     }
 
     public List<CardResponseDto> getCards() {

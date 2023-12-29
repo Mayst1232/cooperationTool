@@ -3,7 +3,9 @@ package com.example.cooperationtool.domain.card.controller;
 import com.example.cooperationtool.domain.card.dto.CardRequestDto;
 import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.card.service.CardService;
+import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,21 +30,33 @@ public class CardController {
     public ResponseEntity<?> createCard(@RequestBody CardRequestDto cardRequestDto,
         @AuthenticationPrincipal
         UserDetailsImpl userDetails) {
-        CardResponseDto cardResponseDto = cardService.createCard(cardRequestDto,
+        CardResponseDto responseDto = cardService.createCard(cardRequestDto,
             userDetails.getUser());
-        return ResponseEntity.ok().body(cardResponseDto);
+        return ResponseEntity.ok().body(RootResponseDto.builder()
+            .code("201")
+            .message("생성 성공")
+            .data(responseDto)
+            .build());
     }
 
     @GetMapping
     public ResponseEntity<List<?>> getCards() {
         List<CardResponseDto> cardResponseDtos = cardService.getCards();
-        return ResponseEntity.ok().body(cardResponseDtos);
+        return ResponseEntity.ok().body(Collections.singletonList(RootResponseDto.builder()
+            .code("200")
+            .message("조회 성공")
+            .data(cardResponseDtos)
+            .build()));
     }
 
     @GetMapping("/{cardId}")
     public ResponseEntity<?> getCard(@PathVariable Long cardId) {
         CardResponseDto cardResponseDto = cardService.getCard(cardId);
-        return ResponseEntity.ok().body(cardResponseDto);
+        return ResponseEntity.ok().body(RootResponseDto.builder()
+            .code("200")
+            .message("조회 성공")
+            .data(cardResponseDto)
+            .build());
     }
 
     @PatchMapping("/{cardId}")
@@ -51,7 +65,11 @@ public class CardController {
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         CardResponseDto cardResponseDto = cardService.modifyCard(cardId, requestDto,
             userDetails.getUser());
-        return ResponseEntity.ok().body(cardResponseDto);
+        return ResponseEntity.ok().body(RootResponseDto.builder()
+            .code("200")
+            .message("수정 성공")
+            .data(cardResponseDto)
+            .build());
     }
 
     @DeleteMapping("/{cardId}")
