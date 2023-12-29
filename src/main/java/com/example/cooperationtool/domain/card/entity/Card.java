@@ -17,16 +17,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
+
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@DynamicInsert
-@DynamicUpdate
 public class Card extends BaseEntity {
 
     @Id
@@ -47,7 +44,12 @@ public class Card extends BaseEntity {
     public void updateTitle(String title) {
         this.title = title;
     }
+
     public void updateModifiedAt(LocalDateTime now) {
         this.modifiedAt = now;
+    }
+
+    public void setCard(String title){
+        this.title = title;
     }
 }
