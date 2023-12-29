@@ -30,7 +30,7 @@ public class CardService {
         return new RootResponseDto("200", "생성 완료", card);
     }
 
-    public List<CardResponseDto> getCards(User user) {
+    public List<CardResponseDto> getCards() {
         List<Card> cardList = cardRepository.findAll();
         return cardList.stream()
             .map(CardResponseDto::of)
@@ -38,7 +38,7 @@ public class CardService {
     }
 
     @Transactional(readOnly = true)
-    public RootResponseDto getCard(Long cardId, User user) {
+    public RootResponseDto getCard(Long cardId) {
         Card card = findByCard(cardId);
         return new RootResponseDto("200", "조회 완료", card);
     }
@@ -46,6 +46,7 @@ public class CardService {
     @Transactional
     public RootResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
         Card card = findByCard(cardId);
+        checkAuthority(user, card);
 
         if (!card.getUser().getId().equals(user.getId())){
             throw new NotFoundWorker("userId",user.getId().toString(),"수정 권한 오류");
@@ -62,11 +63,19 @@ public class CardService {
     @Transactional
     public RootResponseDto deleteCard(Long cardId, User user) {
         Card card = findByCard(cardId);
+        checkAuthority(user, card);
+
         if (card != null) {
             cardRepository.deleteById(cardId);
             return new RootResponseDto("200", "삭제완료", null);
         } else {
             throw new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.");
+        }
+    }
+
+    private static void checkAuthority(User user, Card card) {
+        if(!card.getUser().getId().equals(user.getId())){
+            throw new NotFoundWorker("userId", user.getId().toString(),"작성자가 아닙니다.");
         }
     }
 
