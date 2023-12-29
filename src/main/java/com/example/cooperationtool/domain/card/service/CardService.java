@@ -86,7 +86,6 @@ public class CardService {
         return cardRepository.findById(cardId).orElseThrow(
             () -> new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.")
         );
-        return card;
     }
 
 }

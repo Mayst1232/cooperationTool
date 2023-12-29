@@ -1,6 +1,7 @@
 package com.example.cooperationtool.global.config;
 
 
+import com.example.cooperationtool.global.filter.ExceptionHandleFilter;
 import com.example.cooperationtool.global.filter.JwtAuthenticationFilter;
 import com.example.cooperationtool.global.filter.JwtAuthorizationFilter;
 import com.example.cooperationtool.global.security.UserDetailsServiceImpl;
@@ -30,29 +31,35 @@ public class WebSecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+        throws Exception {
         return configuration.getAuthenticationManager();
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception{
+    public ExceptionHandleFilter exceptionHandleFilter() {
+        return new ExceptionHandleFilter();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }
 
     @Bean
-    public JwtAuthorizationFilter jwtAuthorizationFilter(){
+    public JwtAuthorizationFilter jwtAuthorizationFilter() {
         return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf((csrf) -> csrf.disable());
 
         httpSecurity.sessionManagement((sessionManageMent) ->
@@ -62,8 +69,13 @@ public class WebSecurityConfig {
             authorizeHttpRequests
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 .requestMatchers("/").permitAll()
+<<<<<<< HEAD
                 .requestMatchers("/api/user/**").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/**").permitAll()//test
+=======
+                .requestMatchers(HttpMethod.POST, "/api/user/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+>>>>>>> origin/dev
                 .anyRequest().authenticated()
         );
 
@@ -71,7 +83,9 @@ public class WebSecurityConfig {
         //form 로그인 사용을 안하기 때문에 안쓴다.
 
         httpSecurity.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
-        httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(jwtAuthenticationFilter(),
+            UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(exceptionHandleFilter(), JwtAuthorizationFilter.class);
 
         return httpSecurity.build();
     }

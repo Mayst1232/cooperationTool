@@ -1,9 +1,13 @@
 package com.example.cooperationtool.domain.user.service;
 
 import static com.example.cooperationtool.global.exception.ErrorCode.DUPLICATE_USERNAME;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_ADMIN;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_EXIST_USER;
 import static com.example.cooperationtool.global.exception.ErrorCode.WRONG_ADMIN_CODE;
 
+import com.example.cooperationtool.domain.user.dto.request.ModifyProfileRequestDto;
 import com.example.cooperationtool.domain.user.dto.request.SignupRequestDto;
+import com.example.cooperationtool.domain.user.dto.response.ProfileResponseDto;
 import com.example.cooperationtool.domain.user.dto.response.SignupResponseDto;
 import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.domain.user.entity.UserRoleEnum;
@@ -13,6 +17,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -58,12 +63,111 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
-        SignupResponseDto responseDto = SignupResponseDto.builder()
+        return SignupResponseDto.builder()
             .username(savedUser.getUsername())
             .nickname(savedUser.getNickname())
             .role(savedUser.getRole())
             .build();
+    }
 
-        return responseDto;
+    public ProfileResponseDto getProfile(User user) {
+        User profileUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        return ProfileResponseDto.builder()
+            .username(profileUser.getUsername())
+            .nickname(profileUser.getNickname())
+            .introduce(profileUser.getIntroduce())
+            .role(profileUser.getRole())
+            .build();
+    }
+
+
+    @Transactional
+    public ProfileResponseDto modifyProfile(User user, ModifyProfileRequestDto requestDto) {
+        User profileUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        profileUser.update(requestDto);
+
+        return ProfileResponseDto.builder()
+            .username(profileUser.getUsername())
+            .nickname(profileUser.getNickname())
+            .introduce(profileUser.getIntroduce())
+            .role(profileUser.getRole())
+            .build();
+    }
+
+    public void deleteUser(User user) {
+        User findUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        userRepository.delete(findUser);
+    }
+
+    public ProfileResponseDto getProfileAdmin(User user, Long userId) {
+        User adminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        User findUser = userRepository.findById(userId).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        if (!adminUser.getRole().equals(UserRoleEnum.ADMIN)) {
+            throw new ServiceException(NOT_ADMIN);
+        }
+
+        return ProfileResponseDto.builder()
+            .username(findUser.getUsername())
+            .nickname(findUser.getNickname())
+            .introduce(findUser.getIntroduce())
+            .role(findUser.getRole())
+            .build();
+    }
+
+    @Transactional
+    public ProfileResponseDto modifyProfileAdmin(User user, Long userId,
+        ModifyProfileRequestDto requestDto) {
+        User adminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        User findUser = userRepository.findById(userId).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        if (!adminUser.getRole().equals(UserRoleEnum.ADMIN)) {
+            throw new ServiceException(NOT_ADMIN);
+        }
+
+        findUser.update(requestDto);
+
+        return ProfileResponseDto.builder()
+            .username(findUser.getUsername())
+            .nickname(findUser.getNickname())
+            .introduce(findUser.getIntroduce())
+            .role(findUser.getRole())
+            .build();
+    }
+
+
+    public void deleteUserAdmin(User user, Long userId) {
+        User adminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        User findUser = userRepository.findById(userId).orElseThrow(
+            () -> new ServiceException(NOT_EXIST_USER)
+        );
+
+        if (!adminUser.getRole().equals(UserRoleEnum.ADMIN)) {
+            throw new ServiceException(NOT_ADMIN);
+        }
+
+        userRepository.delete(findUser);
     }
 }
