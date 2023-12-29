@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -76,6 +77,16 @@ public class UserController {
             .code("200")
             .message("유저 정보 변경 성공")
             .data(responseDto)
+            .build());
+    }
+
+    @DeleteMapping("/user")
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        userService.deleteUser(userDetails.getUser());
+
+        return ResponseEntity.ok(RootResponseDto.builder()
+            .code("200")
+            .message("유저 탈퇴 성공")
             .build());
     }
 }

@@ -1,4 +1,4 @@
-package com.example.cooperationtool.domain.user.controller;
+package com.example.cooperationtool.domain.admin.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -6,15 +6,12 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.cooperationtool.domain.user.dto.request.ModifyProfileRequestDto;
-import com.example.cooperationtool.domain.user.dto.request.SignupRequestDto;
 import com.example.cooperationtool.domain.user.dto.response.ProfileResponseDto;
-import com.example.cooperationtool.domain.user.dto.response.SignupResponseDto;
 import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.domain.user.entity.UserRoleEnum;
 import com.example.cooperationtool.domain.user.service.UserService;
@@ -39,10 +36,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-@WebMvcTest(controllers = {UserController.class}, excludeFilters = {
+@WebMvcTest(controllers = {AdminController.class}, excludeFilters = {
     @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfig.class)})
 @ActiveProfiles("test")
-class UserControllerTest {
+class AdminControllerTest {
 
     private MockMvc mockMvc;
 
@@ -64,108 +61,101 @@ class UserControllerTest {
     }
 
     private void mockUserSetup() {
-        String username = "hwang1234";
-        String password = "qwer1234";
+        String username = "admin";
+        String password = "admin";
         String nickname = "Mayst";
-        String introduce = "제 이름은 황규정입니다.";
+        String introduce = "저는 관리자입니다.";
         User testUser = User.builder().username(username).password(password).nickname(nickname)
-            .introduce(introduce).role(UserRoleEnum.USER).build();
+            .introduce(introduce).role(UserRoleEnum.ADMIN).build();
         UserDetailsImpl testUserDetails = new UserDetailsImpl(testUser);
         mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails, "",
             testUserDetails.getAuthorities());
     }
 
     @Nested
-    @DisplayName("유저 회원가입")
-    class SignUp {
+    @DisplayName("관리자 특정 유저 정보 조회")
+    class GetProfileAdmin {
 
         @DisplayName("성공 케이스")
         @Test
         void success() throws Exception {
-            SignupRequestDto requestDto = SignupRequestDto.builder().username("username")
-                .password("12341234").nickname("nickname").introduce("introduce").build();
-
-            String json = objectMapper.writeValueAsString(requestDto);
-
-            SignupResponseDto responseDto = SignupResponseDto.builder()
-                .username(requestDto.getUsername()).nickname(requestDto.getNickname())
-                .role(UserRoleEnum.USER).build();
-
-            given(userService.signUp(requestDto)).willReturn(responseDto);
-
-            mockMvc.perform(
-                    post("/api/user/signup").content(json).contentType(MediaType.APPLICATION_JSON))
-                .andDo(print()).andExpectAll(status().isOk(), jsonPath("$.code").value("200"),
-                    jsonPath("$.message").value("회원가입 성공"));
-        }
-    }
-
-
-    @Nested
-    @DisplayName("유저 정보 조회")
-    class GetProfile {
-
-        @Test
-        void success() throws Exception {
-            mockUserSetup();
-
-            ProfileResponseDto responseDto = ProfileResponseDto.builder().username("hwang1234")
-                .nickname("Mayst").introduce("제 이름은 황규정입니다.").role(UserRoleEnum.USER).build();
-
-            given(userService.getProfile(any())).willReturn(responseDto);
-
-            mockMvc.perform(get("/api/user/profile").principal(mockPrincipal))
-                .andExpectAll(status().isOk(), jsonPath("$.code").value("200"),
-                    jsonPath("$.message").value("프로필 조회 성공"),
-                    jsonPath("$.data.username").value("hwang1234"));
-        }
-    }
-
-
-    @Nested
-    @DisplayName("유저 정보 수정")
-    class ModifyProfile {
-
-        @Test
-        void success() throws Exception {
-            ModifyProfileRequestDto requestDto = ModifyProfileRequestDto.builder()
-                .nickname("change").introduce("바꾼 자기소개").build();
-
             mockUserSetup();
 
             ProfileResponseDto responseDto = ProfileResponseDto.builder()
-                .username("hwang1234").nickname(requestDto.getNickname())
-                .introduce(requestDto.getIntroduce()).role(UserRoleEnum.USER).build();
+                .username("hwang").nickname("hwang").introduce("introduce").role(UserRoleEnum.USER)
+                .build();
 
-            String json = objectMapper.writeValueAsString(requestDto);
+            given(userService.getProfileAdmin(any(), any())).willReturn(responseDto);
 
-            given(userService.modifyProfile(any(), any())).willReturn(responseDto);
-
-            mockMvc.perform(patch("/api/user/profile")
-                    .content(json)
-                    .contentType(MediaType.APPLICATION_JSON)
+            mockMvc.perform(get("/api/admin/users/profile/2")
                     .principal(mockPrincipal))
                 .andExpectAll(status().isOk(),
                     jsonPath("$.code").value("200"),
-                    jsonPath("$.message").value("유저 정보 변경 성공"),
-                    jsonPath("$.data.nickname").value(requestDto.getNickname())
+                    jsonPath("$.message").value("해당 유저의 정보는 다음과 같습니다."),
+                    jsonPath("$.data.username").value("hwang"));
+        }
+
+    }
+
+    @Nested
+    @DisplayName("관리자 특정 유저 정보 수정")
+    class ModifyProfileAdmin {
+
+        @Test
+        void success() throws Exception {
+            mockUserSetup();
+
+            Long userId = 2L;
+
+            User adminUser = User.builder()
+                .username("admin")
+                .password("admin")
+                .role(UserRoleEnum.ADMIN)
+                .build();
+
+            ModifyProfileRequestDto requestDto = ModifyProfileRequestDto.builder()
+                .nickname("change").introduce("change Introduce").build();
+
+            String json = objectMapper.writeValueAsString(requestDto);
+
+            ProfileResponseDto responseDto = ProfileResponseDto.builder()
+                .username("hwang").nickname("change").introduce("change introduce")
+                .role(UserRoleEnum.USER)
+                .build();
+
+            given(userService.modifyProfileAdmin(adminUser, userId, requestDto)).willReturn(
+                responseDto);
+
+            mockMvc.perform(patch("/api/admin/users/profile/{userId}", userId)
+                    .content(json)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .principal(mockPrincipal))
+                .andExpectAll(
+                    status().isOk(),
+                    jsonPath("$.code").value("200"),
+                    jsonPath("$.message").value("해당 유저의 정보를 수정하였습니다.")
                 );
         }
     }
 
     @Nested
-    @DisplayName("유저 정보 삭제")
-    class DeleteUser {
+    @DisplayName("관리자 특정 유저 삭제")
+    class DeleteUserAdmin {
 
         @Test
         void success() throws Exception {
             mockUserSetup();
 
-            mockMvc.perform(delete("/api/user")
+            Long userId = 2L;
+
+            mockMvc.perform(delete("/api/admin/users/{userId}", userId)
                     .principal(mockPrincipal))
-                .andExpectAll(status().isOk(),
+                .andExpectAll(
+                    status().isOk(),
                     jsonPath("$.code").value("200"),
-                    jsonPath("$.message").value("유저 탈퇴 성공"));
+                    jsonPath("$.message").value("해당 유저를 탈퇴시켰습니다.")
+                );
         }
     }
+
 }
