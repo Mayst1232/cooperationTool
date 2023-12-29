@@ -4,6 +4,7 @@ import com.example.cooperationtool.domain.comment.dto.request.CommentRequestDto;
 import com.example.cooperationtool.domain.comment.dto.response.CommentResponseDto;
 import com.example.cooperationtool.domain.user.entity.User;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 
 public interface CommentService {
@@ -13,4 +14,6 @@ public interface CommentService {
     CommentResponseDto updateComment(CommentRequestDto commentRequestDto, User user, Long commentId);
 
     CommentResponseDto deleteComment(User user, Long commentId);
+
+    List<CommentResponseDto> getComment(Long cardId);
 }

@@ -10,6 +10,8 @@ import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.global.exception.ErrorCode;
 import com.example.cooperationtool.global.exception.ServiceException;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -63,5 +65,16 @@ public class CommentServiceImpl implements CommentService {
 
         commentRepository.delete(comment);
         return new CommentResponseDto(comment);
+    }
+
+    @Transactional
+    @Override
+    public List<CommentResponseDto> getComment(Long cardID) {
+        List<Comment> commentList = commentRepository.findAllByCardId(cardID);
+        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+
+        commentList.forEach(comment -> commentResponseDtoList.add(new CommentResponseDto(comment)));
+
+        return commentResponseDtoList;
     }
 }
