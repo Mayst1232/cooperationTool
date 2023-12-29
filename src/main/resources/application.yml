@@ -1,8 +1,9 @@
 spring:
   datasource:
-    username: sa
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:db
+    url: jdbc:mysql://localhost:${DB_PORT}/cooperationtool
+    username: ${DB_USERNAME}
+    password: ${DB_PASS}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
