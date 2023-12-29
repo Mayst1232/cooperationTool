@@ -48,4 +48,20 @@ public class CommentServiceImpl implements CommentService {
         comment.modifyContent(commentRequestDto.getContent());
         return new CommentResponseDto(comment);
     }
+
+    @Transactional
+    @Override
+    public CommentResponseDto deleteComment(User user, Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
+            new ServiceException(ErrorCode.NOT_FOUND_COMMENT));
+
+        Long userId = comment.getUser().getId();
+
+        if (!userId.equals(user.getId())) {
+            throw new ServiceException(ErrorCode.NOT_MATCH_USER);
+        }
+
+        commentRepository.delete(comment);
+        return new CommentResponseDto(comment);
+    }
 }
