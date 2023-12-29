@@ -3,11 +3,8 @@ package com.example.cooperationtool.domain.card.service;
 import com.example.cooperationtool.domain.card.dto.CardRequestDto;
 import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.card.entity.Card;
-import com.example.cooperationtool.domain.card.exception.NotFoundCardException;
-import com.example.cooperationtool.domain.card.exception.NotFoundWorker;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
 import com.example.cooperationtool.domain.user.entity.User;
-import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.exception.ErrorCode;
 import com.example.cooperationtool.global.exception.ServiceException;
 import java.time.LocalDateTime;
@@ -51,7 +48,7 @@ public class CardService {
         checkAuthority(user, card);
 
         if (!card.getUser().getId().equals(user.getId())){
-            throw new NotFoundWorker("userId",user.getId().toString(),"수정 권한 오류");
+            throw new ServiceException(ErrorCode.NOT_EXIST_USER);
         }
 
         if(card != null){
@@ -79,7 +76,7 @@ public class CardService {
 
     private static void checkAuthority(User user, Card card) {
         if(!card.getUser().getId().equals(user.getId())){
-            throw new ServiceException(ErrorCode.NOT_FOUND_WORKER);
+            throw new ServiceException(ErrorCode.NOT_EXIST_USER);
         }
     }
 
