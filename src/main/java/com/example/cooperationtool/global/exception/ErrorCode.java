@@ -16,15 +16,20 @@ public enum ErrorCode {
     TOKEN_ERROR(HttpStatus.BAD_REQUEST, "1004", "토큰이 틀립니다."),
     NOT_EXIST_USER(HttpStatus.BAD_REQUEST, "1005", "유저가 존재하지 않습니다."),
     MODIFY_PROFILE_FAILED(HttpStatus.BAD_REQUEST, "1006", "유저 정보 수정에 실패했습니다."),
+    NOT_ADMIN(HttpStatus.BAD_REQUEST, "1007", "관리자가 아닙니다."),
 
     // board (2000)
     NOT_FOUND_BOARD(HttpStatus.BAD_REQUEST, "2001", "요청하신 게시글이 존재하지 않습니다."),
     NOT_MATCH_USER(HttpStatus.BAD_REQUEST, "2002", "작성자만 수정 및 삭제를 할 수 있습니다."),
+    ILLEGAL_BOARD_TYPE(HttpStatus.BAD_REQUEST, "2003", "해당되지 않는 게시글 입니다."),
+  
     // column (3000)
     NOT_FOUND_COLUMN(HttpStatus.BAD_REQUEST,"3000","해당하는 컬럼을 찾을 수 없습니다"),
-    NOT_IN_COLUMN(HttpStatus.BAD_REQUEST,"3001","컬럼이 현재 보드에 속해있지 않습니다"),
+    NOT_IN_COLUMN(HttpStatus.BAD_REQUEST,"3001","컬럼이 현재 보드에 속해있지 않습니다")
 
     // card (4000)
+      
+      
     // comment (5000)
     ;
 
