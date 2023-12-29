@@ -8,6 +8,7 @@ import com.example.cooperationtool.domain.card.exception.NotFoundWorker;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
 import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,10 @@ public class CardService {
     private final CardRepository cardRepository;
 
     public RootResponseDto createCard(CardRequestDto cardRequestDto, User user) {
-        User byUser = findByUser(user);
+        findByUser(user);
+
         Card card = cardRepository.save(Card.builder()
-            .user(byUser)
+            .user(user)
             .title(cardRequestDto.getTitle())
             .build());
 
@@ -47,15 +49,18 @@ public class CardService {
 
     @Transactional
     public RootResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
-        findByUser(user);
         Card card = findByCard(cardId);
-        if (card != null) {
-            Card modifyCard = cardRepository.save(
-                Card.builder().title(requestDto.getTitle()).build());
-            return new RootResponseDto("200", "수정 성공", modifyCard);
-        } else {
-            throw new NotFoundCardException("cardId", cardId.toString(), "Card를 찾을 수 없습니다.");
+
+        if (!card.getUser().getId().equals(user.getId())){
+            throw new NotFoundWorker("userId",user.getId().toString(),"수정 권한 오류");
         }
+
+        card.updateTitle(requestDto.getTitle());
+        card.updateModifiedAt(LocalDateTime.now());
+
+        cardRepository.save(card);
+
+        return new RootResponseDto("200","수정 완료",CardResponseDto.of(card));
     }
 
     @Transactional
@@ -70,18 +75,16 @@ public class CardService {
         }
     }
 
-    private User findByUser(User user) {
+    private void findByUser(User user) {
         Long userId = user.getId();
         if (userId == null){
             throw new IllegalArgumentException("user null");
         }
 
-        var byId = cardRepository.findById(userId);
+        var byId = cardRepository.findByIdAndUser(userId,user);
         if(byId.isPresent()){
             throw new NotFoundWorker("userId", userId.toString(), "해당 ID가 없습니다.");
         }
-
-        return byId.get().getUser();
     }
 
     private Card findByCard(Long cardId) {
