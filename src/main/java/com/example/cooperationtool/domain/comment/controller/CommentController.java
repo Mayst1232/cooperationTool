@@ -2,6 +2,7 @@ package com.example.cooperationtool.domain.comment.controller;
 
 import com.example.cooperationtool.domain.comment.dto.request.CommentRequestDto;
 import com.example.cooperationtool.domain.comment.dto.response.CommentResponseDto;
+import com.example.cooperationtool.domain.comment.entity.Comment;
 import com.example.cooperationtool.domain.comment.service.CommentService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
@@ -66,15 +67,17 @@ public class CommentController {
         return ResponseEntity.ok(RootResponseDto.builder()
             .code("200")
             .message("댓글 삭제 성공")
-            .data(responseDto)
             .build()
         );
     }
 
-    @GetMapping("/{card_id}")
+    @GetMapping
     public ResponseEntity<?> getComment(
-        @PathVariable Long card_id) {
-        List<CommentResponseDto> commentResponseDtoList = commentService.getComment(card_id);
+        @RequestBody CommentRequestDto requestDto) {
+
+        Long cardId = requestDto.getCardId();
+
+        List<CommentResponseDto> commentResponseDtoList = commentService.getComment(cardId);
         return ResponseEntity.ok(RootResponseDto.builder()
             .code("200")
             .message("댓글 조회 성공")

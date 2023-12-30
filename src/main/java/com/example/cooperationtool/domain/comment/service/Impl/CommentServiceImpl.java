@@ -64,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         commentRepository.delete(comment);
-        return new CommentResponseDto(comment);
+        return null;
     }
 
     @Transactional

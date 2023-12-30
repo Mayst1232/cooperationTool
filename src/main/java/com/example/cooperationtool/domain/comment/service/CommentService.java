@@ -3,9 +3,7 @@ package com.example.cooperationtool.domain.comment.service;
 import com.example.cooperationtool.domain.comment.dto.request.CommentRequestDto;
 import com.example.cooperationtool.domain.comment.dto.response.CommentResponseDto;
 import com.example.cooperationtool.domain.user.entity.User;
-import jakarta.transaction.Transactional;
 import java.util.List;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 
 public interface CommentService {
 
