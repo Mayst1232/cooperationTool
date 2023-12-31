@@ -25,11 +25,12 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/{commentId}")
+    @PostMapping
     public ResponseEntity<?> createComment(
         @RequestBody CommentRequestDto requestDto,
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @PathVariable Long cardId) {
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Long cardId = requestDto.getCardId();
 
         CommentResponseDto responseDto = commentService.createComment(requestDto,userDetails.getUser(), cardId);
         return ResponseEntity.ok(RootResponseDto.builder()
