@@ -12,6 +12,7 @@ import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.domain.user.repository.UserRepository;
 import com.example.cooperationtool.global.exception.ErrorCode;
 import com.example.cooperationtool.global.exception.ServiceException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -104,6 +105,27 @@ public class CardService {
         var byCard = findByCardId(cardId);
         var byId = findByUserId(userId);
         inviteCardRepository.deleteByCardIdAndUserId(byCard, byId);
+    }
+
+    @Transactional
+    public CardResponseDto updateAllCardDueDates(Long cardId, Long dday) {
+        var card = findByCardId(cardId);
+        if (card != null) {
+            updateCardDday(card, dday);
+        } else {
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
+        }
+        return new CardResponseDto(card);
+    }
+
+    @Transactional
+    public void updateCardDday(Card card, Long dday) {
+        LocalDate today = LocalDate.now();
+        LocalDate dueDate = today.plusDays(dday);
+
+        card.setDday(Math.toIntExact(dday));
+        card.setDueDate(dueDate.atStartOfDay());
+        cardRepository.save(card);
     }
 
     private static void checkAuthority(User user, Card card) {
