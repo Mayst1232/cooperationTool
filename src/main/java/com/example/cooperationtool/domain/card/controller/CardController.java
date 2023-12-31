@@ -89,8 +89,18 @@ public class CardController {
 
     @DeleteMapping("/{cardId}/invite")
     public ResponseEntity<?> deleteWorker(@PathVariable Long cardId,
-        @RequestParam Long userId){
+        @RequestParam Long userId) {
         cardService.inviteCancel(cardId, userId);
         return ResponseEntity.ok().body("성공적으로 삭제되었습니다.");
     }
- }
+
+    @PostMapping("/date/{cardId}")
+    public ResponseEntity<?> DdayCards(@PathVariable Long cardId,@RequestParam Long dday) {
+        CardResponseDto cardResponseDto = cardService.updateAllCardDueDates(cardId, dday);
+        return ResponseEntity.ok().body(RootResponseDto.builder()
+            .code("201")
+            .message("D-day 설정 완료")
+            .data(cardResponseDto)
+            .build());
+    }
+}
