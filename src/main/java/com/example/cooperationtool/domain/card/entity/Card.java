@@ -9,7 +9,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,11 +41,25 @@ public class Card extends BaseEntity {
 
     private LocalDateTime modifiedAt;
 
+    @Column(name = "dday")
+    private Integer dday;
+
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
+
     public void updateTitle(String title) {
         this.title = title;
     }
 
     public void updateModifiedAt(LocalDateTime now) {
         this.modifiedAt = now;
+    }
+
+    public void setDday(Integer dday) {
+        this.dday = dday;
+    }
+
+    public void setDueDate(LocalDateTime localDateTime) {
+        this.dueDate = localDateTime;
     }
 }
