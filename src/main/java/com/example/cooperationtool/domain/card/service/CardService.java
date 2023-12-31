@@ -3,8 +3,13 @@ package com.example.cooperationtool.domain.card.service;
 import com.example.cooperationtool.domain.card.dto.CardRequestDto;
 import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.card.entity.Card;
+import com.example.cooperationtool.domain.card.entity.InviteCard;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
+import com.example.cooperationtool.domain.card.repository.InviteCardRepository;
+import com.example.cooperationtool.domain.column.entity.Columns;
+import com.example.cooperationtool.domain.column.repository.ColumnRepository;
 import com.example.cooperationtool.domain.user.entity.User;
+import com.example.cooperationtool.domain.user.repository.UserRepository;
 import com.example.cooperationtool.global.exception.ErrorCode;
 import com.example.cooperationtool.global.exception.ServiceException;
 import java.time.LocalDateTime;
@@ -19,10 +24,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class CardService {
 
     private final CardRepository cardRepository;
+    private final ColumnRepository columnRepository;
+    private final InviteCardRepository inviteCardRepository;
+    private final UserRepository userRepository;
 
     public CardResponseDto createCard(CardRequestDto cardRequestDto, User user) {
+
+        Columns column = columnRepository.findById(cardRequestDto.getColumnsId()).orElseThrow(
+            () -> new ServiceException(ErrorCode.NOT_FOUND_BOARD)
+        );
+
         Card card = cardRepository.save(Card.builder()
-            .user(user)
+            .userId(user)
+            .columnsId(column)
             .title(cardRequestDto.getTitle())
             .build());
 
@@ -38,33 +52,33 @@ public class CardService {
 
     @Transactional(readOnly = true)
     public CardResponseDto getCard(Long cardId) {
-        Card card = findByCard(cardId);
+        Card card = findByCardId(cardId);
         return CardResponseDto.of(card);
     }
 
     @Transactional
     public CardResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
-        Card card = findByCard(cardId);
+        Card card = findByCardId(cardId);
         checkAuthority(user, card);
 
-        if (!card.getUser().getId().equals(user.getId())){
+        if (!card.getUserId().getId().equals(user.getId())) {
             throw new ServiceException(ErrorCode.NOT_EXIST_USER);
         }
 
-        if(card != null){
+        if (card != null) {
             card.updateTitle(requestDto.getTitle());
             card.updateModifiedAt(LocalDateTime.now());
 
             cardRepository.save(card);
             return new CardResponseDto(card);
-        }else{
+        } else {
             throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
     }
 
     @Transactional
     public void deleteCard(Long cardId, User user) {
-        Card card = findByCard(cardId);
+        Card card = findByCardId(cardId);
         checkAuthority(user, card);
 
         if (card != null) {
@@ -74,15 +88,40 @@ public class CardService {
         }
     }
 
+    @Transactional
+    public void inviteWorker(Long cardId, Long userId) {
+        var byCard = findByCardId(cardId);
+        var byId = findByUserId(userId);
+        InviteCard inviteCard = InviteCard.builder()
+            .cardId(byCard)
+            .userId(byId)
+            .build();
+        inviteCardRepository.save(inviteCard);
+    }
+
+    @Transactional
+    public void inviteCancel(Long cardId, Long userId) {
+        var byCard = findByCardId(cardId);
+        var byId = findByUserId(userId);
+        inviteCardRepository.deleteByCardIdAndUserId(byCard, byId);
+    }
+
     private static void checkAuthority(User user, Card card) {
-        if(!card.getUser().getId().equals(user.getId())){
+        if (!card.getUserId().getId().equals(user.getId())) {
             throw new ServiceException(ErrorCode.NOT_EXIST_USER);
         }
     }
 
-    private Card findByCard(Long cardId) {
+    private Card findByCardId(Long cardId) {
         return cardRepository.findById(cardId).orElseThrow(
             () -> new ServiceException(ErrorCode.NOT_FOUND_CARD)
         );
+    }
+
+    private User findByUserId(Long userId) {
+        User byId = userRepository.findById(userId).orElseThrow(
+            () -> new ServiceException(ErrorCode.NOT_EXIST_USER)
+        );
+        return byId;
     }
 }
