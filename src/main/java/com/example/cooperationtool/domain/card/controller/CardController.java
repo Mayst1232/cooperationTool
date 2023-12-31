@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -78,4 +79,18 @@ public class CardController {
         cardService.deleteCard(cardId, userDetails.getUser());
         return ResponseEntity.ok().body("성공적으로 삭제되었습니다.");
     }
-}
+
+    @PostMapping("/{cardId}/invite")
+    public ResponseEntity<?> inviteWorker(@PathVariable Long cardId,
+        @RequestParam Long userId) {
+        cardService.inviteWorker(cardId, userId);
+        return ResponseEntity.ok().body("성공적으로 초대하였습니다.");
+    }
+
+    @DeleteMapping("/{cardId}/invite")
+    public ResponseEntity<?> deleteWorker(@PathVariable Long cardId,
+        @RequestParam Long userId){
+        cardService.inviteCancel(cardId, userId);
+        return ResponseEntity.ok().body("성공적으로 삭제되었습니다.");
+    }
+ }
