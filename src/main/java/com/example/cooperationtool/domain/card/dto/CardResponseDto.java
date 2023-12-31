@@ -21,12 +21,17 @@ public class CardResponseDto {
     private LocalDateTime createdAt;
     @JsonInclude(Include.NON_NULL)
     private LocalDateTime modifiedAt;
+    private Integer dDay;
+    private LocalDateTime dueDate;
+
 
     public CardResponseDto(Card card) {
         this.cardId = card.getId();
         this.title = card.getTitle();
         this.createdAt = card.getCreatedAt();
         this.modifiedAt = card.getModifiedAt();
+        this.dDay = card.getDday();
+        this.dueDate = card.getDueDate();
     }
 
     public static CardResponseDto of(Card card) {
@@ -35,6 +40,8 @@ public class CardResponseDto {
             .title(card.getTitle())
             .createdAt(card.getCreatedAt())
             .modifiedAt(card.getModifiedAt())
+            .dDay(card.getDday())
+            .dueDate(card.getDueDate())
             .build();
     }
 }
