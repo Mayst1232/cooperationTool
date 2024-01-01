@@ -7,11 +7,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,11 +28,12 @@ import org.hibernate.annotations.DynamicUpdate;
 public class Card extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private User userId;
+    @JoinColumn
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Columns columnsId;
+    @JoinColumn
+    private Columns columns;
 
     @Column(nullable = false)
     @Size(max = 20)
@@ -41,7 +41,7 @@ public class Card extends BaseEntity {
 
     private LocalDateTime modifiedAt;
 
-    @Column(name = "dday")
+    @Column(name = "d_day")
     private Integer dday;
 
     @Column(name = "due_date")
