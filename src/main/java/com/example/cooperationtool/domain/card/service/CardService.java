@@ -31,7 +31,7 @@ public class CardService {
 
     public CardResponseDto createCard(CardRequestDto cardRequestDto, User user) {
 
-        Columns column = columnRepository.findById(cardRequestDto.getColumnsId()).orElseThrow(
+        var column = columnRepository.findById(cardRequestDto.getColumnsId()).orElseThrow(
             () -> new ServiceException(ErrorCode.NOT_FOUND_BOARD)
         );
 
@@ -50,15 +50,15 @@ public class CardService {
             return cardList.stream()
                 .map(CardResponseDto::of)
                 .collect(Collectors.toList());
-        }else{
+        } else {
             throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
     }
 
     @Transactional(readOnly = true)
     public CardResponseDto getCard(Long cardId, User user) {
-        Card getCard = findByCardId(cardId);
-        User getUser = findByUserId(user.getId());
+        var getCard = findByCardId(cardId);
+        var getUser = findByUserId(user.getId());
         if (getCard.getUser().equals(getUser)) {
             return CardResponseDto.of(getCard);
         } else {
@@ -69,7 +69,7 @@ public class CardService {
 
     @Transactional
     public CardResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
-        Card card = findByCardId(cardId);
+        var card = findByCardId(cardId);
         checkAuthority(user, card);
 
         if (!card.getUser().getId().equals(user.getId())) {
@@ -89,7 +89,7 @@ public class CardService {
 
     @Transactional
     public void deleteCard(Long cardId, User user) {
-        Card card = findByCardId(cardId);
+        var card = findByCardId(cardId);
         checkAuthority(user, card);
 
         if (card != null) {
@@ -114,18 +114,21 @@ public class CardService {
     public void inviteCancel(Long cardId, Long userId) {
         var byCard = findByCardId(cardId);
         var byId = findByUserId(userId);
-        inviteCardRepository.deleteByCardIdAndUserId(byCard, byId);
+        if (byCard.getUser().equals(byId)) {
+            inviteCardRepository.deleteByCardIdAndUserId(byCard.getId(), byId.getId());
+        }
     }
 
     @Transactional
-    public CardResponseDto updateAllCardDueDates(Long cardId, Long dday) {
-        var card = findByCardId(cardId);
-        if (card != null) {
-            updateCardDday(card, dday);
+    public CardResponseDto updateAllCardDueDates(Long cardId, Long dday, User user) {
+        var byuser = findByUserId(user.getId());
+        var bycard = findByCardId(cardId);
+        if (bycard.getUser().equals(byuser)) {
+            updateCardDday(bycard, dday);
         } else {
             throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
-        return new CardResponseDto(card);
+        return new CardResponseDto(bycard);
     }
 
     @Transactional
@@ -151,9 +154,8 @@ public class CardService {
     }
 
     private User findByUserId(Long userId) {
-        User byId = userRepository.findById(userId).orElseThrow(
+        return userRepository.findById(userId).orElseThrow(
             () -> new ServiceException(ErrorCode.NOT_EXIST_USER)
         );
-        return byId;
     }
 }
