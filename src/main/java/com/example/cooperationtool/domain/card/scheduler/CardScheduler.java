@@ -3,6 +3,7 @@ package com.example.cooperationtool.domain.card.scheduler;
 import com.example.cooperationtool.domain.card.entity.Card;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
 import com.example.cooperationtool.domain.card.service.CardService;
+import com.example.cooperationtool.domain.user.entity.User;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,8 @@ public class CardScheduler {
             log.info("Card ID " + card.getId() + " D-day Before " + card.getDday());
             Long updateDday = (long) (card.getDday() - 1);
             if (card.getDday() != null && card.getDday() > 0) {
-                cardService.updateAllCardDueDates(card.getId(), updateDday);
+                User user = card.getUser();
+                cardService.updateAllCardDueDates(card.getId(), updateDday, user);
             }
             log.info("Card ID " + card.getId() + " D-day Before " + card.getDday());
         }
