@@ -3,14 +3,16 @@ package com.example.cooperationtool.domain.card.entity;
 import com.example.cooperationtool.domain.column.entity.Columns;
 import com.example.cooperationtool.domain.model.BaseEntity;
 import com.example.cooperationtool.domain.user.entity.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,13 +29,18 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 public class Card extends BaseEntity {
 
+    private Long priority;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
+    @JoinColumn(name = "columns_id")
     private Columns columns;
+
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InviteCard> inviteCard;
 
     @Column(nullable = false)
     @Size(max = 20)
