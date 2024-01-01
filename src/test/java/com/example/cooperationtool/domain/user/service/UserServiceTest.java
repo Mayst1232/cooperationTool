@@ -77,7 +77,7 @@ class UserServiceTest {
                 .role(UserRoleEnum.USER)
                 .build();
 
-            given(userRepository.findByUsername(any())).willReturn(Optional.of(user));
+            given(userRepository.findById(any())).willReturn(Optional.of(user));
 
             ProfileResponseDto responseDto = userService.getProfile(user);
 
@@ -105,7 +105,7 @@ class UserServiceTest {
                 .introduce("바꾼 자기소개")
                 .build();
 
-            given(userRepository.findByUsername(any())).willReturn(Optional.of(user));
+            given(userRepository.findById(any())).willReturn(Optional.of(user));
 
             ProfileResponseDto responseDto = userService.modifyProfile(user, requestDto);
 
@@ -128,7 +128,7 @@ class UserServiceTest {
                 .role(UserRoleEnum.USER)
                 .build();
 
-            given(userRepository.findByUsername(user.getUsername())).willReturn(Optional.of(user));
+            given(userRepository.findById(any())).willReturn(Optional.of(user));
 
             userService.deleteUser(user);
 

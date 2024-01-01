@@ -1,5 +1,6 @@
 package com.example.cooperationtool.domain.user.dto.response;
 
+import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.domain.user.entity.UserRoleEnum;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,11 +18,10 @@ public class ProfileResponseDto {
     UserRoleEnum role;
 
     @Builder
-    public ProfileResponseDto(String username, String nickname, String introduce,
-        UserRoleEnum role) {
-        this.username = username;
-        this.nickname = nickname;
-        this.introduce = introduce;
-        this.role = role;
+    public ProfileResponseDto(User user) {
+        this.username = user.getUsername();
+        this.nickname = user.getNickname();
+        this.introduce = user.getIntroduce();
+        this.role = user.getRole();
     }
 }
