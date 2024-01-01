@@ -45,6 +45,8 @@ class AdminControllerTest {
 
     private Principal mockPrincipal;
 
+    private User testUser;
+
     @Autowired
     protected ObjectMapper objectMapper;
 
@@ -65,7 +67,7 @@ class AdminControllerTest {
         String password = "admin";
         String nickname = "Mayst";
         String introduce = "저는 관리자입니다.";
-        User testUser = User.builder().username(username).password(password).nickname(nickname)
+        testUser = User.builder().username(username).password(password).nickname(nickname)
             .introduce(introduce).role(UserRoleEnum.ADMIN).build();
         UserDetailsImpl testUserDetails = new UserDetailsImpl(testUser);
         mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails, "",
@@ -81,9 +83,15 @@ class AdminControllerTest {
         void success() throws Exception {
             mockUserSetup();
 
-            ProfileResponseDto responseDto = ProfileResponseDto.builder()
-                .username("hwang").nickname("hwang").introduce("introduce").role(UserRoleEnum.USER)
+            User findUser = User.builder()
+                .username("findUser")
+                .nickname("nickname")
+                .introduce("자기소개")
+                .role(UserRoleEnum.USER)
                 .build();
+
+            ProfileResponseDto responseDto = ProfileResponseDto.builder()
+                .user(findUser).build();
 
             given(userService.getProfileAdmin(any(), any())).willReturn(responseDto);
 
@@ -92,7 +100,7 @@ class AdminControllerTest {
                 .andExpectAll(status().isOk(),
                     jsonPath("$.code").value("200"),
                     jsonPath("$.message").value("해당 유저의 정보는 다음과 같습니다."),
-                    jsonPath("$.data.username").value("hwang"));
+                    jsonPath("$.data.username").value("findUser"));
         }
 
     }
@@ -107,23 +115,22 @@ class AdminControllerTest {
 
             Long userId = 2L;
 
-            User adminUser = User.builder()
-                .username("admin")
-                .password("admin")
-                .role(UserRoleEnum.ADMIN)
-                .build();
-
             ModifyProfileRequestDto requestDto = ModifyProfileRequestDto.builder()
                 .nickname("change").introduce("change Introduce").build();
+
+            User findUser = User.builder()
+                .username("findUser")
+                .nickname(requestDto.getNickname())
+                .introduce(requestDto.getIntroduce())
+                .role(UserRoleEnum.USER)
+                .build();
 
             String json = objectMapper.writeValueAsString(requestDto);
 
             ProfileResponseDto responseDto = ProfileResponseDto.builder()
-                .username("hwang").nickname("change").introduce("change introduce")
-                .role(UserRoleEnum.USER)
-                .build();
+                .user(findUser).build();
 
-            given(userService.modifyProfileAdmin(adminUser, userId, requestDto)).willReturn(
+            given(userService.modifyProfileAdmin(testUser, userId, requestDto)).willReturn(
                 responseDto);
 
             mockMvc.perform(patch("/api/admin/users/profile/{userId}", userId)
