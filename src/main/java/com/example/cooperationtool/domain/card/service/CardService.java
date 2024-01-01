@@ -36,33 +36,43 @@ public class CardService {
         );
 
         Card card = cardRepository.save(Card.builder()
-            .userId(user)
-            .columnsId(column)
+            .user(user)
+            .columns(column)
             .title(cardRequestDto.getTitle())
             .build());
 
         return new CardResponseDto(card);
     }
 
-    public List<CardResponseDto> getCards() {
-        List<Card> cardList = cardRepository.findAll();
-        return cardList.stream()
-            .map(CardResponseDto::of)
-            .collect(Collectors.toList());
+    public List<CardResponseDto> getCards(User user) {
+        List<Card> cardList = cardRepository.findByUserId(user.getId());
+        if (!cardList.isEmpty()) {
+            return cardList.stream()
+                .map(CardResponseDto::of)
+                .collect(Collectors.toList());
+        }else{
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
+        }
     }
 
     @Transactional(readOnly = true)
-    public CardResponseDto getCard(Long cardId) {
-        Card card = findByCardId(cardId);
-        return CardResponseDto.of(card);
+    public CardResponseDto getCard(Long cardId, User user) {
+        Card getCard = findByCardId(cardId);
+        User getUser = findByUserId(user.getId());
+        if (getCard.getUser().equals(getUser)) {
+            return CardResponseDto.of(getCard);
+        } else {
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
+        }
     }
+
 
     @Transactional
     public CardResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
         Card card = findByCardId(cardId);
         checkAuthority(user, card);
 
-        if (!card.getUserId().getId().equals(user.getId())) {
+        if (!card.getUser().getId().equals(user.getId())) {
             throw new ServiceException(ErrorCode.NOT_EXIST_USER);
         }
 
@@ -94,8 +104,8 @@ public class CardService {
         var byCard = findByCardId(cardId);
         var byId = findByUserId(userId);
         InviteCard inviteCard = InviteCard.builder()
-            .cardId(byCard)
-            .userId(byId)
+            .card(byCard)
+            .user(byId)
             .build();
         inviteCardRepository.save(inviteCard);
     }
@@ -129,7 +139,7 @@ public class CardService {
     }
 
     private static void checkAuthority(User user, Card card) {
-        if (!card.getUserId().getId().equals(user.getId())) {
+        if (!card.getUser().getId().equals(user.getId())) {
             throw new ServiceException(ErrorCode.NOT_EXIST_USER);
         }
     }
