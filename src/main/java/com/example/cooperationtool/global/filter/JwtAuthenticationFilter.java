@@ -6,7 +6,6 @@ import com.example.cooperationtool.domain.user.dto.request.LoginRequestDto;
 import com.example.cooperationtool.domain.user.dto.response.LoginResponseDto;
 import com.example.cooperationtool.domain.user.entity.UserRoleEnum;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
-import com.example.cooperationtool.global.exception.ServiceException;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
 import com.example.cooperationtool.global.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,9 +82,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         HttpServletResponse response, AuthenticationException failed) throws IOException {
         response.setStatus(400);
 
-        String json = objectMapper.writeValueAsString(new ServiceException(LOGIN_FAILED));
+        RootResponseDto<?> responseDto = RootResponseDto.builder()
+            .code(LOGIN_FAILED.getCode())
+            .message(LOGIN_FAILED.getMessage())
+            .build();
+
+        String json = objectMapper.writeValueAsString(responseDto);
         PrintWriter writer = response.getWriter();
-        
+
         writer.println(json);
     }
 }

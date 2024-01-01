@@ -1,11 +1,14 @@
 package com.example.cooperationtool.global.config;
 
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_AUTHORIZATION;
 
-import com.example.cooperationtool.global.filter.ExceptionHandleFilter;
+import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.filter.JwtAuthenticationFilter;
 import com.example.cooperationtool.global.filter.JwtAuthorizationFilter;
 import com.example.cooperationtool.global.security.UserDetailsServiceImpl;
 import com.example.cooperationtool.global.util.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.PrintWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -41,10 +45,6 @@ public class WebSecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
-    @Bean
-    public ExceptionHandleFilter exceptionHandleFilter() {
-        return new ExceptionHandleFilter();
-    }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
@@ -70,10 +70,11 @@ public class WebSecurityConfig {
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 .requestMatchers("/").permitAll()
                 .requestMatchers("/api/user/**").permitAll()
-                .requestMatchers(HttpMethod.POST,"/api/**").permitAll()//test
                 .requestMatchers(HttpMethod.POST, "/api/user/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
+        ).exceptionHandling(
+            (exception) -> exception.authenticationEntryPoint(getAuthenticationEntryPoint())
         );
 
         //httpSecurity.formLogin(config -> config.disable());
@@ -82,8 +83,22 @@ public class WebSecurityConfig {
         httpSecurity.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         httpSecurity.addFilterBefore(jwtAuthenticationFilter(),
             UsernamePasswordAuthenticationFilter.class);
-        httpSecurity.addFilterBefore(exceptionHandleFilter(), JwtAuthorizationFilter.class);
 
         return httpSecurity.build();
+    }
+
+    private static AuthenticationEntryPoint getAuthenticationEntryPoint() {
+        return (request, response, authException) -> {
+            ObjectMapper ob = new ObjectMapper();
+            RootResponseDto<?> responseDto = RootResponseDto.builder()
+                .code(NOT_AUTHORIZATION.getCode())
+                .message(NOT_AUTHORIZATION.getMessage())
+                .build();
+
+            String json = ob.writeValueAsString(responseDto);
+            PrintWriter writer = response.getWriter();
+
+            writer.println(json);
+        };
     }
 }

@@ -71,96 +71,72 @@ public class UserService {
     }
 
     public ProfileResponseDto getProfile(User user) {
-        User profileUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
-            () -> new ServiceException(NOT_EXIST_USER)
-        );
+        User profileUser = findUser(user.getId());
 
         return ProfileResponseDto.builder()
-            .username(profileUser.getUsername())
-            .nickname(profileUser.getNickname())
-            .introduce(profileUser.getIntroduce())
-            .role(profileUser.getRole())
+            .user(profileUser)
             .build();
     }
 
 
     @Transactional
     public ProfileResponseDto modifyProfile(User user, ModifyProfileRequestDto requestDto) {
-        User profileUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
-            () -> new ServiceException(NOT_EXIST_USER)
-        );
+        User profileUser = findUser(user.getId());
 
         profileUser.update(requestDto);
 
         return ProfileResponseDto.builder()
-            .username(profileUser.getUsername())
-            .nickname(profileUser.getNickname())
-            .introduce(profileUser.getIntroduce())
-            .role(profileUser.getRole())
+            .user(profileUser)
             .build();
     }
 
     public void deleteUser(User user) {
-        User findUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
-            () -> new ServiceException(NOT_EXIST_USER)
-        );
+        User findUser = findUser(user.getId());
 
         userRepository.delete(findUser);
     }
 
     public ProfileResponseDto getProfileAdmin(User user, Long userId) {
-        User adminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
-            () -> new ServiceException(NOT_EXIST_USER)
-        );
 
-        User findUser = userRepository.findById(userId).orElseThrow(
-            () -> new ServiceException(NOT_EXIST_USER)
-        );
-
-        if (!adminUser.getRole().equals(UserRoleEnum.ADMIN)) {
-            throw new ServiceException(NOT_ADMIN);
-        }
+        User adminUser = findAdminUser(user.getUsername());
+        User findUser = findUser(userId);
 
         return ProfileResponseDto.builder()
-            .username(findUser.getUsername())
-            .nickname(findUser.getNickname())
-            .introduce(findUser.getIntroduce())
-            .role(findUser.getRole())
+            .user(findUser)
             .build();
     }
 
     @Transactional
     public ProfileResponseDto modifyProfileAdmin(User user, Long userId,
         ModifyProfileRequestDto requestDto) {
-        User adminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
-            () -> new ServiceException(NOT_EXIST_USER)
-        );
 
-        User findUser = userRepository.findById(userId).orElseThrow(
-            () -> new ServiceException(NOT_EXIST_USER)
-        );
+        User adminUser = findAdminUser(user.getUsername());
+        User modifyUser = findUser(userId);
 
-        if (!adminUser.getRole().equals(UserRoleEnum.ADMIN)) {
-            throw new ServiceException(NOT_ADMIN);
-        }
-
-        findUser.update(requestDto);
+        modifyUser.update(requestDto);
 
         return ProfileResponseDto.builder()
-            .username(findUser.getUsername())
-            .nickname(findUser.getNickname())
-            .introduce(findUser.getIntroduce())
-            .role(findUser.getRole())
+            .user(modifyUser)
             .build();
     }
 
 
     public void deleteUserAdmin(User user, Long userId) {
-        User adminUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
+        User adminUser = findAdminUser(user.getUsername());
+        User findUser = findUser(userId);
+
+        userRepository.delete(findUser);
+    }
+
+
+    public User findUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
             () -> new ServiceException(NOT_EXIST_USER)
         );
+    }
 
-        User findUser = userRepository.findById(userId).orElseThrow(
+    public User findAdminUser(String username) {
+        User adminUser = userRepository.findByUsername(username).orElseThrow(
             () -> new ServiceException(NOT_EXIST_USER)
         );
 
@@ -168,6 +144,6 @@ public class UserService {
             throw new ServiceException(NOT_ADMIN);
         }
 
-        userRepository.delete(findUser);
+        return adminUser;
     }
 }
