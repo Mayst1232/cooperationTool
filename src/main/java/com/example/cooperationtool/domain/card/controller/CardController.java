@@ -51,8 +51,9 @@ public class CardController {
     }
 
     @GetMapping("/{cardId}")
-    public ResponseEntity<?> getCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        CardResponseDto cardResponseDto = cardService.getCard(cardId,userDetails.getUser());
+    public ResponseEntity<?> getCard(@PathVariable Long cardId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardResponseDto cardResponseDto = cardService.getCard(cardId, userDetails.getUser());
         return ResponseEntity.ok().body(RootResponseDto.builder()
             .code("200")
             .message("조회 성공")
@@ -95,8 +96,9 @@ public class CardController {
     }
 
     @PostMapping("/date/{cardId}")
-    public ResponseEntity<?> DdayCards(@PathVariable Long cardId,@RequestParam Long dday) {
-        CardResponseDto cardResponseDto = cardService.updateAllCardDueDates(cardId, dday);
+    public ResponseEntity<?> DdayCards(@PathVariable Long cardId, @RequestParam Long dday,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardResponseDto cardResponseDto = cardService.updateAllCardDueDates(cardId, dday, userDetails.getUser());
         return ResponseEntity.ok().body(RootResponseDto.builder()
             .code("201")
             .message("D-day 설정 완료")
