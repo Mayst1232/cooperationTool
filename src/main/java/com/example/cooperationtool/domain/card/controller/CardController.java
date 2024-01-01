@@ -41,8 +41,8 @@ public class CardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<?>> getCards() {
-        List<CardResponseDto> cardResponseDtos = cardService.getCards();
+    public ResponseEntity<List<?>> getCards(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<CardResponseDto> cardResponseDtos = cardService.getCards(userDetails.getUser());
         return ResponseEntity.ok().body(Collections.singletonList(RootResponseDto.builder()
             .code("200")
             .message("조회 성공")
@@ -51,8 +51,8 @@ public class CardController {
     }
 
     @GetMapping("/{cardId}")
-    public ResponseEntity<?> getCard(@PathVariable Long cardId) {
-        CardResponseDto cardResponseDto = cardService.getCard(cardId);
+    public ResponseEntity<?> getCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardResponseDto cardResponseDto = cardService.getCard(cardId,userDetails.getUser());
         return ResponseEntity.ok().body(RootResponseDto.builder()
             .code("200")
             .message("조회 성공")
