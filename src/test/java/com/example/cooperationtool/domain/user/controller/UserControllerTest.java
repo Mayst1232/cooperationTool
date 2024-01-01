@@ -48,6 +48,8 @@ class UserControllerTest {
 
     private Principal mockPrincipal;
 
+    User testUser;
+
     @Autowired
     protected ObjectMapper objectMapper;
 
@@ -68,7 +70,7 @@ class UserControllerTest {
         String password = "qwer1234";
         String nickname = "Mayst";
         String introduce = "제 이름은 황규정입니다.";
-        User testUser = User.builder().username(username).password(password).nickname(nickname)
+        testUser = User.builder().username(username).password(password).nickname(nickname)
             .introduce(introduce).role(UserRoleEnum.USER).build();
         UserDetailsImpl testUserDetails = new UserDetailsImpl(testUser);
         mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails, "",
@@ -109,8 +111,8 @@ class UserControllerTest {
         void success() throws Exception {
             mockUserSetup();
 
-            ProfileResponseDto responseDto = ProfileResponseDto.builder().username("hwang1234")
-                .nickname("Mayst").introduce("제 이름은 황규정입니다.").role(UserRoleEnum.USER).build();
+            ProfileResponseDto responseDto = ProfileResponseDto.builder().
+                user(testUser).build();
 
             given(userService.getProfile(any())).willReturn(responseDto);
 
@@ -133,9 +135,13 @@ class UserControllerTest {
 
             mockUserSetup();
 
+            User changeUser = User.builder()
+                .nickname(requestDto.getNickname())
+                .introduce(requestDto.getIntroduce())
+                .build();
+
             ProfileResponseDto responseDto = ProfileResponseDto.builder()
-                .username("hwang1234").nickname(requestDto.getNickname())
-                .introduce(requestDto.getIntroduce()).role(UserRoleEnum.USER).build();
+                .user(changeUser).build();
 
             String json = objectMapper.writeValueAsString(requestDto);
 
