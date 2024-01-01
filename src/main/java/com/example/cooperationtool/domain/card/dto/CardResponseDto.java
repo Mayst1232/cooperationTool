@@ -16,12 +16,19 @@ import lombok.NoArgsConstructor;
 public class CardResponseDto {
 
     private Long cardId;
+
     private String title;
+
     @JsonInclude
     private LocalDateTime createdAt;
+
     @JsonInclude(Include.NON_NULL)
     private LocalDateTime modifiedAt;
-    private Integer dDay;
+
+    @JsonInclude(Include.NON_NULL)
+    private Integer dday;
+
+    @JsonInclude(Include.NON_NULL)
     private LocalDateTime dueDate;
 
 
@@ -30,7 +37,7 @@ public class CardResponseDto {
         this.title = card.getTitle();
         this.createdAt = card.getCreatedAt();
         this.modifiedAt = card.getModifiedAt();
-        this.dDay = card.getDday();
+        this.dday = card.getDday();
         this.dueDate = card.getDueDate();
     }
 
@@ -40,7 +47,7 @@ public class CardResponseDto {
             .title(card.getTitle())
             .createdAt(card.getCreatedAt())
             .modifiedAt(card.getModifiedAt())
-            .dDay(card.getDday())
+            .dday(card.getDday())
             .dueDate(card.getDueDate())
             .build();
     }
