@@ -27,7 +27,6 @@ public enum ErrorCode {
     ALREADY_INVITE_USER(HttpStatus.BAD_REQUEST, "2005", "이미 초대한 유저입니다."),
     NOT_MATCH_BOARD(HttpStatus.BAD_REQUEST, "2006", "보드 생성자만 초대할 수 있습니다."),
     NOT_INVITE_USER(HttpStatus.BAD_REQUEST, "2007", "아직 보드에 초대되지 않았습니다."),
-    NOT_INVITED_USER(HttpStatus.BAD_REQUEST, "2008", "해당 보드에 초대를 받지 않은 유저입니다."),
     NOT_INVITE_MYSELF(HttpStatus.BAD_REQUEST, "2009", "보드 생성자 본인은 초대를 취소할 수 없습니다."),
 
     // column (3000)
