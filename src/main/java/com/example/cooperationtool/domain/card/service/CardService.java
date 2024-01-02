@@ -14,10 +14,9 @@ import com.example.cooperationtool.global.exception.ServiceException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +34,7 @@ public class CardService {
             () -> new ServiceException(ErrorCode.NOT_FOUND_BOARD)
         );
 
-        if(column.getUser().getId().equals(user.getId())){
+        if (column.getUser().getId().equals(user.getId())) {
             Card card = cardRepository.save(Card.builder()
                 .user(user)
                 .priority(0L)
@@ -53,14 +52,14 @@ public class CardService {
             inviteCardRepository.save(inviteCard);
 
             return new CardResponseDto(card);
-        }else{
+        } else {
             throw new ServiceException(ErrorCode.NOT_FOUND_COLUMN);
         }
     }
 
     public List<CardResponseDto> getCards(User user) {
-        List<Card> cardList = cardRepository.findByUserId(user.getId(),
-            Sort.by(Direction.ASC, "priority"));
+        List<Card> cardList = cardRepository.findCardsByUserIdWithInvites(user.getId());
+
         if (!cardList.isEmpty()) {
             return cardList.stream()
                 .map(CardResponseDto::of)
@@ -72,11 +71,17 @@ public class CardService {
 
     @Transactional(readOnly = true)
     public CardResponseDto getCard(Long cardId, User user) {
-        var getCard = findByCardId(cardId);
-        checkAuthority(user, getCard);
-        return CardResponseDto.of(getCard);
-    }
+        Optional<Card> optionalCard = cardRepository.findBycardAndUserIdWithInvites(cardId,
+            user.getId());
 
+        if (optionalCard.isPresent()) {
+            Card card = optionalCard.get();
+
+            return CardResponseDto.of(card);
+        }else{
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
+        }
+    }
 
     @Transactional
     public CardResponseDto modifyCard(Long cardId, CardRequestDto requestDto, User user) {
@@ -114,7 +119,7 @@ public class CardService {
         checkAuthority(user,byCard);
 
         var byUser = userRepository.findById(userId).orElseThrow(
-            () -> new ServiceException(ErrorCode.NOT_AUTHORIZATION)
+            () -> new ServiceException(ErrorCode.NOT_EXIST_USER)
         );
 
         var getInviteCardList = inviteCardRepository.findByCardId(cardId);
@@ -152,9 +157,10 @@ public class CardService {
     public CardResponseDto updateAllCardDueDates(Long cardId, Long dday, User user) {
         var byCard = findByCardId(cardId);
 
-        var byId = inviteCardRepository.findByCardId(cardId);
-        if (!byId.isEmpty() && byId.get(0).getUser().getId().equals(user.getId())
-        || user.getId().equals(byCard.getUser().getId())){
+        var byCardId = inviteCardRepository.findByCardId(cardId);
+        boolean ListId = byCardId.stream().anyMatch(ListCardId -> ListCardId.getCard().getUser().getId().equals(user.getId()));
+
+        if (ListId || user.getId().equals(byCard.getUser().getId())){
             updateCardDday(byCard, dday);
         } else {
             throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
