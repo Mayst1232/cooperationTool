@@ -10,7 +10,7 @@ import static com.example.cooperationtool.global.exception.ErrorCode.NOT_INVITE_
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_MATCH_BOARD;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_MATCH_USER;
 
-import com.example.cooperationtool.domain.board.dto.BoardViewResponseDto;
+import com.example.cooperationtool.domain.board.dto.response.BoardViewResponseDto;
 import com.example.cooperationtool.domain.board.dto.request.BoardRequestDto;
 import com.example.cooperationtool.domain.board.dto.response.BoardResponseDto;
 import com.example.cooperationtool.domain.board.entity.Board;
