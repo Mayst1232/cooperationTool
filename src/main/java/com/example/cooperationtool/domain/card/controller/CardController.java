@@ -2,6 +2,7 @@ package com.example.cooperationtool.domain.card.controller;
 
 import com.example.cooperationtool.domain.card.dto.CardRequestDto;
 import com.example.cooperationtool.domain.card.dto.CardResponseDto;
+import com.example.cooperationtool.domain.card.dto.InviteResponseDto;
 import com.example.cooperationtool.domain.card.service.CardService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -40,8 +42,8 @@ public class CardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<?>> getCards() {
-        List<CardResponseDto> cardResponseDtos = cardService.getCards();
+    public ResponseEntity<List<?>> getCards(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<CardResponseDto> cardResponseDtos = cardService.getCards(userDetails.getUser());
         return ResponseEntity.ok().body(Collections.singletonList(RootResponseDto.builder()
             .code("200")
             .message("조회 성공")
@@ -50,8 +52,9 @@ public class CardController {
     }
 
     @GetMapping("/{cardId}")
-    public ResponseEntity<?> getCard(@PathVariable Long cardId) {
-        CardResponseDto cardResponseDto = cardService.getCard(cardId);
+    public ResponseEntity<?> getCard(@PathVariable Long cardId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardResponseDto cardResponseDto = cardService.getCard(cardId, userDetails.getUser());
         return ResponseEntity.ok().body(RootResponseDto.builder()
             .code("200")
             .message("조회 성공")
@@ -76,6 +79,55 @@ public class CardController {
     public ResponseEntity<?> deleteCard(@PathVariable Long cardId,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         cardService.deleteCard(cardId, userDetails.getUser());
-        return ResponseEntity.ok().body("성공적으로 삭제되었습니다.");
+        return ResponseEntity.ok().body(RootResponseDto.builder()
+            .code("200")
+            .message("성공적으로 삭제되었습니다")
+            .build());
+    }
+
+    @PostMapping("/{cardId}/invite")
+    public ResponseEntity<?> inviteWorker(@PathVariable Long cardId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @RequestParam Long userId) {
+        cardService.inviteWorker(cardId, userDetails.getUser(), userId);
+        return ResponseEntity.ok().body(InviteResponseDto.builder()
+            .code("200")
+            .message(userId + "번 유저가 " + cardId + "번 카드에 초대되었습니다.")
+            .build());
+    }
+
+    @DeleteMapping("/{cardId}/invite")
+    public ResponseEntity<?> deleteWorker(@PathVariable Long cardId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @RequestParam Long userId) {
+        cardService.inviteCancel(cardId, userDetails.getUser(), userId);
+        return ResponseEntity.ok().body(InviteResponseDto.builder()
+            .code("200")
+            .message(userId + "번 유저가 " + cardId + "번 카드에서 삭제되었습니다.")
+            .build());
+    }
+
+    @PostMapping("/date/{cardId}")
+    public ResponseEntity<?> dDayCards(@PathVariable Long cardId, @RequestParam Long dday,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardResponseDto cardResponseDto = cardService.updateAllCardDueDates(cardId, dday,
+            userDetails.getUser());
+        return ResponseEntity.ok().body(RootResponseDto.builder()
+            .code("201")
+            .message("D-day 설정 완료")
+            .data(cardResponseDto)
+            .build());
+    }
+
+    @PatchMapping("/move/{cardId}")
+    public ResponseEntity<List<?>> moveCard(@PathVariable Long cardId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails,
+        @RequestParam Long moveNumber) {
+        List<CardResponseDto> cardResponseDto = cardService.moveCard(cardId,userDetails.getUser(),moveNumber);
+        return ResponseEntity.ok().body(Collections.singletonList(RootResponseDto.builder()
+            .code("201")
+            .message("성공적으로 수정되었습니다.")
+            .data(cardResponseDto)
+            .build()));
     }
 }

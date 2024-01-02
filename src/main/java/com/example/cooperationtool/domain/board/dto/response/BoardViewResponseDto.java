@@ -1,4 +1,4 @@
-package com.example.cooperationtool.domain.board.dto;
+package com.example.cooperationtool.domain.board.dto.response;
 
 import java.time.LocalDateTime;
 import lombok.Builder;

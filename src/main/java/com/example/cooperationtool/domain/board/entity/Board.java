@@ -1,6 +1,7 @@
 package com.example.cooperationtool.domain.board.entity;
 
 import com.example.cooperationtool.domain.board.dto.request.BoardRequestDto;
+import com.example.cooperationtool.domain.column.entity.Columns;
 import com.example.cooperationtool.domain.model.BaseEntity;
 import com.example.cooperationtool.domain.user.entity.User;
 import jakarta.persistence.CascadeType;
@@ -33,6 +34,9 @@ public class Board extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Columns> columnsList = new ArrayList<>();
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InviteBoard> inviteBoardList = new ArrayList<>();
