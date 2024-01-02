@@ -57,7 +57,7 @@ public class ColumnService {
 
     public ColumnResponseDto updateColumnName(Long columnId, String title) {
         Columns columns = columnRepository.findById(columnId)
-            .orElseThrow(() -> new ServiceException(NOT_FOUND_COLUMN));
+            .orElseThrow(() -> new ServiceException(NOT_MATCH_USER));
 
         columns.setTitle(title);
         columnRepository.save(columns);

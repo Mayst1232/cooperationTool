@@ -42,15 +42,23 @@ public class ColumnController {
     }
 
     @GetMapping("/columns")
-    public ResponseEntity<List<ColumnResponseDto>> getAllColumn() {
+    public ResponseEntity<?> getAllColumn() {
         List<ColumnResponseDto> columns = columnService.getAllColumns();
-        return ResponseEntity.ok(columns);
+        return ResponseEntity.ok(RootResponseDto.builder()
+            .code("200")
+            .message("컬럼 조회 성공")
+            .data(columns)
+            .build());
     }
 
     @GetMapping("/columns/{columnId}")
-    public ResponseEntity<ColumnResponseDto> getColumnById(@PathVariable Long columnId) {
+    public ResponseEntity<?> getColumnById(@PathVariable Long columnId) {
         ColumnResponseDto column = columnService.getColumnById(columnId);
-        return ResponseEntity.ok(column);
+        return ResponseEntity.ok(RootResponseDto.builder()
+            .code("200")
+            .message("컬럼 조회 성공")
+            .data(column)
+            .build());
     }
 
 
