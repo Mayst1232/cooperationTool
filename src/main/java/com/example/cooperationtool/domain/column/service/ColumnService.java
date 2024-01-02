@@ -39,6 +39,10 @@ public class ColumnService {
             () -> new ServiceException(NOT_FOUND_BOARD)
         );
 
+        InviteBoard inviteBoard = inviteBoardRepository.findByUserAndBoard(user, board).orElseThrow(
+            () -> new ServiceException(NOT_INVITE_USER)
+        );
+
         Long priority = columnRepository.countByBoardId(boardId) + 1;
 
         Columns columns = Columns.builder()
