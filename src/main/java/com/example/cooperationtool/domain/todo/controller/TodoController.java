@@ -1,12 +1,10 @@
 package com.example.cooperationtool.domain.todo.controller;
 
-import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.todo.dto.TodoRequestDto;
 import com.example.cooperationtool.domain.todo.dto.TodoResponseDto;
 import com.example.cooperationtool.domain.todo.service.TodoService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
 import com.example.cooperationtool.global.security.UserDetailsImpl;
-import com.example.cooperationtool.global.security.UserDetailsServiceImpl;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

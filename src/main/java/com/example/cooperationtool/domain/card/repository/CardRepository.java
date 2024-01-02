@@ -1,7 +1,6 @@
 package com.example.cooperationtool.domain.card.repository;
 
 import com.example.cooperationtool.domain.card.entity.Card;
-import com.example.cooperationtool.domain.user.entity.User;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
