@@ -77,20 +77,12 @@ public class BoardService {
         if (type.equals("all")) {
             inviteBoardList = inviteBoardRepository.findAllByUser_Id(user.getId());
             for (InviteBoard inviteBoard : inviteBoardList) {
-                Board board = boardRepository.findById(inviteBoard.getBoard().getId())
-                    .orElse(null);
-                if (board != null) {
-                    boardList.add(board);
-                }
+                boardRepository.findById(inviteBoard.getBoard().getId()).ifPresent(boardList::add);
             }
         } else if (type.equals("recent")) {
             inviteBoardList = inviteBoardRepository.findAllByUser_Id(user.getId());
             for (InviteBoard inviteBoard : inviteBoardList) {
-                Board board = boardRepository.findById(inviteBoard.getBoard().getId())
-                    .orElse(null);
-                if (board != null) {
-                    boardList.add(board);
-                }
+                boardRepository.findById(inviteBoard.getBoard().getId()).ifPresent(boardList::add);
             }
             boardList.sort(Comparator.comparing(Board::getCreatedAt).reversed());
         } else {
@@ -150,7 +142,7 @@ public class BoardService {
                     .id(board.getId())
                     .title(board.getTitle())
                     .content(board.getContent())
-                    .nickname(board.getUser().getNickname())
+                    .writer(board.getUser().getNickname())
                     .createdAt(board.getCreatedAt())
                     .modifiedAt(board.getModifiedAt())
                     .build());
