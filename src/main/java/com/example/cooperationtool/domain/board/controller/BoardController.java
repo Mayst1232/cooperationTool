@@ -1,6 +1,6 @@
 package com.example.cooperationtool.domain.board.controller;
 
-import com.example.cooperationtool.domain.board.dto.BoardViewResponseDto;
+import com.example.cooperationtool.domain.board.dto.response.BoardViewResponseDto;
 import com.example.cooperationtool.domain.board.dto.request.BoardRequestDto;
 import com.example.cooperationtool.domain.board.dto.request.InviteBoardRequestDto;
 import com.example.cooperationtool.domain.board.dto.response.BoardResponseDto;
