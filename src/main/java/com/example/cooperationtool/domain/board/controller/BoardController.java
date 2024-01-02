@@ -23,12 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/boards")
 public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping("/boards")
+    @PostMapping
     public ResponseEntity<?> createBoard(
         @RequestBody BoardRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -40,7 +40,7 @@ public class BoardController {
             .build());
     }
 
-    @DeleteMapping("/boards/{boardId}")
+    @DeleteMapping("/{boardId}")
     public ResponseEntity<?> deleteBoard(
         @PathVariable Long boardId,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -51,7 +51,7 @@ public class BoardController {
             .build());
     }
 
-    @PatchMapping("/boards/{boardId}")
+    @PatchMapping("/{boardId}")
     public ResponseEntity<?> updateBoard(
         @PathVariable Long boardId,
         @RequestBody BoardRequestDto requestDto,
@@ -65,7 +65,7 @@ public class BoardController {
             .build());
     }
 
-    @GetMapping("/boards")
+    @GetMapping
     public ResponseEntity<?> getBoards(
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam(name = "type", required = true, defaultValue = "all") String type) {
@@ -77,7 +77,7 @@ public class BoardController {
             .build());
     }
 
-    @PostMapping("/boards/{boardId}/invite")
+    @PostMapping("/{boardId}/invite")
     public ResponseEntity<?> inviteBoard(
         @PathVariable (name = "boardId") Long boardId,
         @RequestBody InviteBoardRequestDto requestDto,
@@ -89,7 +89,7 @@ public class BoardController {
             .build());
     }
 
-    @DeleteMapping("/boards/{boardId}/invite")
+    @DeleteMapping("/{boardId}/invite")
     public ResponseEntity<?> unInviteBoard(
         @PathVariable (name = "boardId") Long boardId,
         @RequestBody InviteBoardRequestDto requestDto,

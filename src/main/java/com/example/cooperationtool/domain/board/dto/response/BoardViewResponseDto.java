@@ -9,7 +9,7 @@ import lombok.Getter;
 public class BoardViewResponseDto {
 
     private Long id;
-    private String nickname;
+    private String writer;
     private String title;
     private String content;
     private LocalDateTime createdAt;
