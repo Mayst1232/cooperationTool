@@ -2,16 +2,14 @@ package com.example.cooperationtool.domain.card.repository;
 
 import com.example.cooperationtool.domain.card.entity.Card;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CardRepository extends JpaRepository<Card,Long> {
+public interface CardRepository extends JpaRepository<Card, Long> {
 
     List<Card> findByUserId(Long cardId, Sort sort);
 
@@ -25,15 +23,11 @@ public interface CardRepository extends JpaRepository<Card,Long> {
         + "order by c.priority asc")
     List<Card> findAllOrderByPriority(Long id);
 
-    @Query("SELECT c FROM Card c "
-        + "JOIN c.inviteCard ic "
-        + "WHERE ic.user.id =: userId OR ic.user.id =:userId "
-        + "order by ic.id asc")
-    List<Card> findCardsByUserIdWithInvites(Long userId);
-
-    @Query("select c from Card c "
-        + "join c.inviteCard ic "
-        + "where c.id =: cardId "
-        + "and c.user.id =: userId and ic.user.id =: userId")
-    Optional<Card> findBycardAndUserIdWithInvites(Long cardId, Long userId);
+    @Query("select distinct c from Card c "
+        + "join Columns cl on cl.id = c.columns.id "
+        + "join Board b on b.id = cl.board.id "
+        + "join InviteBoard ib on ib.board.id = b.id "
+        + "where ib.board.id = :boardId and ib.user.id = :userId "
+        + "order by c.priority asc")
+    List<Card> findCardsByUserIdWithInvites(Long boardId, Long userId);
 }
