@@ -11,9 +11,6 @@ public interface InviteCardRepository extends JpaRepository<InviteCard, Long> {
 
     void deleteByCardIdAndUserId(Long card_id, Long user_id);
 
-    List<InviteCard> findByUserIdAndCardId(Long user_id, Long card_id);
-
     List<InviteCard> findByCardId(Long cardId);
 
-    User findByUserId(Long userId);
 }
