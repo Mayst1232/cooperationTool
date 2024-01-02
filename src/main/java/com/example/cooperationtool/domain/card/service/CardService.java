@@ -1,14 +1,5 @@
 package com.example.cooperationtool.domain.card.service;
 
-import static com.example.cooperationtool.global.exception.ErrorCode.DUPLICATE_USERNAME;
-import static com.example.cooperationtool.global.exception.ErrorCode.NOT_AUTHORIZATION;
-import static com.example.cooperationtool.global.exception.ErrorCode.NOT_EXIST_USER;
-import static com.example.cooperationtool.global.exception.ErrorCode.NOT_FOUND_CARD;
-import static com.example.cooperationtool.global.exception.ErrorCode.NOT_FOUND_COLUMN;
-import static com.example.cooperationtool.global.exception.ErrorCode.NOT_INVITE_USER;
-
-import com.example.cooperationtool.domain.board.entity.InviteBoard;
-import com.example.cooperationtool.domain.board.repository.InviteBoardRepository;
 import com.example.cooperationtool.domain.card.dto.CardRequestDto;
 import com.example.cooperationtool.domain.card.dto.CardResponseDto;
 import com.example.cooperationtool.domain.card.entity.Card;
@@ -18,10 +9,12 @@ import com.example.cooperationtool.domain.card.repository.InviteCardRepository;
 import com.example.cooperationtool.domain.column.repository.ColumnRepository;
 import com.example.cooperationtool.domain.user.entity.User;
 import com.example.cooperationtool.domain.user.repository.UserRepository;
+import com.example.cooperationtool.global.exception.ErrorCode;
 import com.example.cooperationtool.global.exception.ServiceException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,61 +28,59 @@ public class CardService {
     private final ColumnRepository columnRepository;
     private final InviteCardRepository inviteCardRepository;
     private final UserRepository userRepository;
-    private final InviteBoardRepository inviteBoardRepository;
 
     public CardResponseDto createCard(CardRequestDto cardRequestDto, User user) {
         var column = columnRepository.findById(cardRequestDto.getColumnsId()).orElseThrow(
-            () -> new ServiceException(NOT_FOUND_COLUMN)
+            () -> new ServiceException(ErrorCode.NOT_FOUND_BOARD)
         );
 
-        var inviteBoard = inviteBoardRepository.findByUserAndBoard(user, column.getBoard())
-            .orElseThrow(
-                () -> new ServiceException(NOT_INVITE_USER)
-            );
+        if (column.getUser().getId().equals(user.getId())) {
+            Card card = cardRepository.save(Card.builder()
+                .user(user)
+                .priority(0L)
+                .columns(column)
+                .title(cardRequestDto.getTitle())
+                .build());
 
-        Card card = cardRepository.save(Card.builder()
-            .user(user)
-            .priority(0L)
-            .columns(column)
-            .title(cardRequestDto.getTitle())
-            .build());
+            card.setPriority(card.getId());
+            cardRepository.save(card);
 
-        card.setPriority(card.getId());
-        cardRepository.save(card);
+            InviteCard inviteCard = InviteCard.builder()
+                .card(card)
+                .user(user)
+                .build();
+            inviteCardRepository.save(inviteCard);
 
-        InviteCard inviteCard = InviteCard.builder()
-            .card(card)
-            .user(user)
-            .build();
-        inviteCardRepository.save(inviteCard);
-
-        return new CardResponseDto(card);
+            return new CardResponseDto(card);
+        } else {
+            throw new ServiceException(ErrorCode.NOT_FOUND_COLUMN);
+        }
     }
 
-    public List<CardResponseDto> getCards(Long boardId, User user) {
-        List<Card> cardList = cardRepository.findCardsByUserIdWithInvites(boardId, user.getId());
+    public List<CardResponseDto> getCards(User user) {
+        List<Card> cardList = cardRepository.findCardsByUserIdWithInvites(user.getId());
 
         if (!cardList.isEmpty()) {
             return cardList.stream()
                 .map(CardResponseDto::of)
                 .collect(Collectors.toList());
         } else {
-            throw new ServiceException(NOT_FOUND_CARD);
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
     }
 
     @Transactional(readOnly = true)
     public CardResponseDto getCard(Long cardId, User user) {
-        Card card = cardRepository.findById(cardId).orElseThrow(
-            () -> new ServiceException(NOT_FOUND_CARD)
-        );
+        Optional<Card> optionalCard = cardRepository.findBycardAndUserIdWithInvites(cardId,
+            user.getId());
 
-        InviteBoard inviteBoard = inviteBoardRepository.findByUserAndBoard(
-            user, card.getColumns().getBoard()).orElseThrow(
-            () -> new ServiceException(NOT_INVITE_USER)
-        );
+        if (optionalCard.isPresent()) {
+            Card card = optionalCard.get();
 
-        return new CardResponseDto(card);
+            return CardResponseDto.of(card);
+        }else{
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
+        }
     }
 
     @Transactional
@@ -98,7 +89,7 @@ public class CardService {
         checkAuthority(user, card);
 
         if (!card.getUser().getId().equals(user.getId())) {
-            throw new ServiceException(NOT_AUTHORIZATION);
+            throw new ServiceException(ErrorCode.NOT_AUTHORIZATION);
         }
 
         if (card != null) {
@@ -107,7 +98,7 @@ public class CardService {
 
             return new CardResponseDto(card);
         } else {
-            throw new ServiceException(NOT_FOUND_CARD);
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
     }
 
@@ -119,16 +110,16 @@ public class CardService {
         if (card != null) {
             cardRepository.deleteById(cardId);
         } else {
-            throw new ServiceException(NOT_FOUND_CARD);
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
     }
 
     public void inviteWorker(Long cardId, User user, Long userId) {
         var byCard = findByCardId(cardId);
-        checkAuthority(user, byCard);
+        checkAuthority(user,byCard);
 
         var byUser = userRepository.findById(userId).orElseThrow(
-            () -> new ServiceException(NOT_EXIST_USER)
+            () -> new ServiceException(ErrorCode.NOT_EXIST_USER)
         );
 
         var getInviteCardList = inviteCardRepository.findByCardId(cardId);
@@ -143,7 +134,7 @@ public class CardService {
 
             inviteCardRepository.save(saveInvite);
         } else {
-            throw new ServiceException(DUPLICATE_USERNAME);
+            throw new ServiceException(ErrorCode.DUPLICATE_USERNAME);
         }
     }
 
@@ -151,15 +142,14 @@ public class CardService {
     public void inviteCancel(Long cardId, User user, Long userId) {
         List<InviteCard> byId = inviteCardRepository.findByCardId(cardId);
         var card = findByCardId(cardId);
-        checkAuthority(user, card);
+        checkAuthority(user,card);
 
-        boolean cards = byId.stream()
-            .anyMatch(inviteCard -> inviteCard.getUser().getId().equals(userId));
+        boolean cards= byId.stream().anyMatch(inviteCard -> inviteCard.getUser().getId().equals(userId));
 
         if (cards) {
             inviteCardRepository.deleteByCardIdAndUserId(card.getId(), user.getId());
         } else {
-            throw new ServiceException(NOT_FOUND_CARD);
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
     }
 
@@ -168,13 +158,12 @@ public class CardService {
         var byCard = findByCardId(cardId);
 
         var byCardId = inviteCardRepository.findByCardId(cardId);
-        boolean ListId = byCardId.stream()
-            .anyMatch(ListCardId -> ListCardId.getCard().getUser().getId().equals(user.getId()));
+        boolean ListId = byCardId.stream().anyMatch(ListCardId -> ListCardId.getCard().getUser().getId().equals(user.getId()));
 
-        if (ListId || user.getId().equals(byCard.getUser().getId())) {
+        if (ListId || user.getId().equals(byCard.getUser().getId())){
             updateCardDday(byCard, dday);
         } else {
-            throw new ServiceException(NOT_FOUND_CARD);
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
         return new CardResponseDto(byCard);
     }
@@ -193,8 +182,8 @@ public class CardService {
         var card = findByCardId(cardId);
         var byId = inviteCardRepository.findByCardId(cardId);
 
-        if (!byId.isEmpty() && byId.get(0).getUser().getId().equals(user
-            .getId()) || user.getId().equals(card.getUser().getId())) {
+        if(!byId.isEmpty() && byId.get(0).getUser().getId().equals(user
+            .getId()) || user.getId().equals(card.getUser().getId())){
 
             Long currentPriority = card.getPriority();
             Long moveDirection;
@@ -222,20 +211,20 @@ public class CardService {
             List<Card> cardList = cardRepository.findAllOrderByPriority(card.getColumns().getId());
 
             return cardList.stream().map(CardResponseDto::new).collect(Collectors.toList());
-        } else {
-            throw new ServiceException(NOT_FOUND_CARD);
+        }else{
+            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
         }
     }
 
     private static void checkAuthority(User user, Card card) {
         if (!card.getUser().getId().equals(user.getId())) {
-            throw new ServiceException(NOT_AUTHORIZATION);
+            throw new ServiceException(ErrorCode.NOT_AUTHORIZATION);
         }
     }
 
     private Card findByCardId(Long cardId) {
         return cardRepository.findById(cardId).orElseThrow(
-            () -> new ServiceException(NOT_FOUND_CARD)
+            () -> new ServiceException(ErrorCode.NOT_FOUND_CARD)
         );
     }
 }
