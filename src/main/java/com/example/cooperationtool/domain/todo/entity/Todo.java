@@ -43,6 +43,10 @@ public class Todo extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public void setCard(Card card){
+        this.card = card;
+    }
+
     public void updateModifiedAt(LocalDateTime now){
         this.modifiedAt = now;
     }
