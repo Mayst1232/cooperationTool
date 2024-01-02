@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,8 +31,7 @@ public class TodoController {
 
     @PostMapping
     public ResponseEntity<?> createTodo(@RequestBody TodoRequestDto todoRequestDto,
-        @AuthenticationPrincipal
-        UserDetailsImpl userDetails) {
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         TodoResponseDto responseDto = todoService.createTodo(todoRequestDto, userDetails.getUser());
         return ResponseEntity.ok().body(RootResponseDto.builder()
             .code("201")
@@ -40,8 +40,9 @@ public class TodoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<?>> getTodos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<TodoResponseDto> todoResponseDto = todoService.getTodos(userDetails.getUser());
+    public ResponseEntity<List<?>> getTodos(@AuthenticationPrincipal UserDetailsImpl userDetails,
+        @RequestParam Long cardId) {
+        List<TodoResponseDto> todoResponseDto = todoService.getTodos(cardId, userDetails.getUser());
         return ResponseEntity.ok().body(Collections.singletonList(RootResponseDto.builder()
             .code("200")
             .message("전체 조회 완료")
