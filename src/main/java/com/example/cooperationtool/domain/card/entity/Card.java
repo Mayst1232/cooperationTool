@@ -2,6 +2,7 @@ package com.example.cooperationtool.domain.card.entity;
 
 import com.example.cooperationtool.domain.column.entity.Columns;
 import com.example.cooperationtool.domain.model.BaseEntity;
+import com.example.cooperationtool.domain.todo.entity.Todo;
 import com.example.cooperationtool.domain.user.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,6 +45,9 @@ public class Card extends BaseEntity {
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InviteCard> inviteCard;
+
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Todo> todos;
 
     @Column(nullable = false)
     @Size(max = 20)
