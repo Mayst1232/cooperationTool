@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
-    private final CardRepository cardRepository;
 
     @Override
     public CommentResponseDto createComment(CommentRequestDto commentRequestDto, User user, Long cardId) {
@@ -44,9 +43,11 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
             new ServiceException(ErrorCode.NOT_FOUND_COMMENT));
 
+
         if (!user.getId().equals(comment.getUser().getId())) {
             throw new ServiceException(ErrorCode.NOT_MATCH_USER);
         }
+
         comment.modifyContent(commentRequestDto.getContent());
         return new CommentResponseDto(comment);
     }
