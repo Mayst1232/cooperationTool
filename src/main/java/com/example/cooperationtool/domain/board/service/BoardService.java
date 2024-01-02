@@ -4,15 +4,15 @@ import static com.example.cooperationtool.global.exception.ErrorCode.ALREADY_INV
 import static com.example.cooperationtool.global.exception.ErrorCode.ILLEGAL_BOARD_TYPE;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_EXIST_USER;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_FOUND_BOARD;
-import static com.example.cooperationtool.global.exception.ErrorCode.NOT_INVITED_USER;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_INVITE_MYSELF;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_INVITE_USER;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_INVITE_YOURSELF;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_MATCH_BOARD;
 import static com.example.cooperationtool.global.exception.ErrorCode.NOT_MATCH_USER;
 
-import com.example.cooperationtool.domain.board.dto.response.BoardViewResponseDto;
 import com.example.cooperationtool.domain.board.dto.request.BoardRequestDto;
 import com.example.cooperationtool.domain.board.dto.response.BoardResponseDto;
+import com.example.cooperationtool.domain.board.dto.response.BoardViewResponseDto;
 import com.example.cooperationtool.domain.board.entity.Board;
 import com.example.cooperationtool.domain.board.entity.InviteBoard;
 import com.example.cooperationtool.domain.board.repository.BoardRepository;
@@ -138,7 +138,7 @@ public class BoardService {
             InviteBoard inviteBoard = inviteBoardOptional.get();
             inviteBoardRepository.delete(inviteBoard);
         } else {
-            throw new ServiceException(NOT_INVITED_USER);
+            throw new ServiceException(NOT_INVITE_USER);
         }
     }
 

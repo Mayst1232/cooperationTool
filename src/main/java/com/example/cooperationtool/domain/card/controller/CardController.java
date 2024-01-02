@@ -2,6 +2,7 @@ package com.example.cooperationtool.domain.card.controller;
 
 import com.example.cooperationtool.domain.card.dto.CardRequestDto;
 import com.example.cooperationtool.domain.card.dto.CardResponseDto;
+import com.example.cooperationtool.domain.card.dto.GetCardRequestDto;
 import com.example.cooperationtool.domain.card.dto.InviteResponseDto;
 import com.example.cooperationtool.domain.card.service.CardService;
 import com.example.cooperationtool.global.dto.response.RootResponseDto;
@@ -42,8 +43,10 @@ public class CardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<?>> getCards(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<CardResponseDto> cardResponseDtos = cardService.getCards(userDetails.getUser());
+    public ResponseEntity<List<?>> getCards(@RequestBody GetCardRequestDto requestDto,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<CardResponseDto> cardResponseDtos = cardService.getCards(requestDto.getBoardId(),
+            userDetails.getUser());
         return ResponseEntity.ok().body(Collections.singletonList(RootResponseDto.builder()
             .code("200")
             .message("조회 성공")
@@ -123,7 +126,8 @@ public class CardController {
     public ResponseEntity<List<?>> moveCard(@PathVariable Long cardId,
         @AuthenticationPrincipal UserDetailsImpl userDetails,
         @RequestParam Long moveNumber) {
-        List<CardResponseDto> cardResponseDto = cardService.moveCard(cardId,userDetails.getUser(),moveNumber);
+        List<CardResponseDto> cardResponseDto = cardService.moveCard(cardId, userDetails.getUser(),
+            moveNumber);
         return ResponseEntity.ok().body(Collections.singletonList(RootResponseDto.builder()
             .code("201")
             .message("성공적으로 수정되었습니다.")
