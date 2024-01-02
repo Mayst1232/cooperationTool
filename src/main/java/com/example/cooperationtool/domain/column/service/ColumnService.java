@@ -92,35 +92,6 @@ public class ColumnService {
         columnRepository.delete(columns);
     }
 
-//    public void sortColumn(Long columnId, boolean sortUp) {
-//        Columns column = columnRepository.findById(columnId)
-//            .orElseThrow(() -> new ServiceException(NOT_FOUND_COLUMN));
-//
-//        List<Columns> columns = columnRepository.findByBoardIdOrderByPriorityAsc(
-//            column.getBoard().getId());
-//
-//        int currentIndex = columns.indexOf(column);
-//
-//        if (currentIndex == -1) {
-//            throw new ServiceException(NOT_IN_COLUMN);
-//        }
-//
-//        int newIndex =
-//            sortUp ? Math.max(0, currentIndex - 1) : Math.min(columns.size() - 1, currentIndex + 1);
-//
-//        columns.remove(column);
-//        columns.add(newIndex, column);
-//
-//        updateColumnOrder(columns);
-//    }
-//
-//    private void updateColumnOrder(List<Columns> columns) {
-//        for (int i = 0; i < columns.size(); i++) {
-//            columns.get(i).setPriority((long) i);
-//        }
-//        columnRepository.saveAll(columns);
-//    }
-
     @Transactional
     public List<ColumnResponseDto> moveColumn(Long columnId, MoveColumnRequestDto requestDto,
         User user) {
