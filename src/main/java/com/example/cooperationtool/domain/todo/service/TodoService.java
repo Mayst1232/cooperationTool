@@ -1,6 +1,10 @@
 package com.example.cooperationtool.domain.todo.service;
 
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_EXIST_USER;
+import static com.example.cooperationtool.global.exception.ErrorCode.NOT_FOUND_CARD;
+
 import com.example.cooperationtool.domain.card.entity.Card;
+import com.example.cooperationtool.domain.card.entity.InviteCard;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
 import com.example.cooperationtool.domain.card.repository.InviteCardRepository;
 import com.example.cooperationtool.domain.todo.dto.TodoRequestDto;
@@ -13,7 +17,6 @@ import com.example.cooperationtool.global.exception.ErrorCode;
 import com.example.cooperationtool.global.exception.ServiceException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,41 +32,43 @@ public class TodoService {
     private final CardRepository cardRepository;
 
     public TodoResponseDto createTodo(TodoRequestDto todoRequestDto, User user) {
-        var inviteCard = inviteCardRepository.findByUserId(user.getId());
-        var byUser = userRepository.findById(user.getId());
-        var byCard = cardRepository.findById(todoRequestDto.getCardId());
-
-        if (todoRequestDto.getCardId() > 0 && byUser.isPresent()) {
-
+        List<InviteCard> matchingUser = inviteCardRepository.findByCardId(todoRequestDto.getCardId());
+        if(matchingUser.get(0).getUser().getId().equals(user.getId())){
             Todo todo = Todo.builder()
                 .content(todoRequestDto.getContent())
                 .nickname(todoRequestDto.getNickname())
                 .complete(todoRequestDto.isComplete())
                 .build();
 
-            Todo savedTodo = todoRepository.save(todo);
+            Card card = cardRepository.findById(todoRequestDto.getCardId()).orElseThrow(
+                () -> new ServiceException(NOT_FOUND_CARD)
+            );
 
+            todo.setCard(card);
+
+            Todo savedTodo = todoRepository.save(todo);
             return TodoResponseDto.of(savedTodo);
-        } else {
-            throw new ServiceException(ErrorCode.NOT_FOUND_CARD);
+        }else{
+            throw new ServiceException(NOT_EXIST_USER);
         }
     }
 
-    public List<TodoResponseDto> getTodos(User user) {
+    public List<TodoResponseDto> getTodos(Long cardId, User user) {
+        List<Todo> byId = todoRepository.findTodoByUserIdWithInvites(cardId,user.getId());
+
         List<Todo> todos = todoRepository.findAllByUserId(user.getId());
-        if(!todos.isEmpty()){
+
+        if (!todos.isEmpty()) {
             return todos.stream()
                 .map(TodoResponseDto::of)
                 .collect(Collectors.toList());
-        }else{
+        } else {
             throw new ServiceException(ErrorCode.NOT_FOUND_TODO);
         }
     }
 
     public TodoResponseDto getTodo(Long todoId, User user) {
         Todo todo = getTodo(todoId);
-
-        Optional<User> byUser = userRepository.findById(user.getId());
 
         return new TodoResponseDto(todo);
     }
@@ -89,10 +94,9 @@ public class TodoService {
 
 
     private Todo getTodo(Long todoId) {
-        Todo todo = todoRepository.findById(todoId).orElseThrow(
+        return todoRepository.findById(todoId).orElseThrow(
             () -> new ServiceException(ErrorCode.NOT_FOUND_TODO)
         );
-        return todo;
     }
 
 
