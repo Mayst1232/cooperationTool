@@ -17,6 +17,7 @@ public enum ErrorCode {
     NOT_EXIST_USER(HttpStatus.BAD_REQUEST, "1005", "유저가 존재하지 않습니다."),
     MODIFY_PROFILE_FAILED(HttpStatus.BAD_REQUEST, "1006", "유저 정보 수정에 실패했습니다."),
     NOT_ADMIN(HttpStatus.BAD_REQUEST, "1007", "관리자가 아닙니다."),
+    NOT_AUTHORIZATION(HttpStatus.BAD_REQUEST, "1008", "인증되지 않은 사용자입니다."),
 
     // board (2000)
     NOT_FOUND_BOARD(HttpStatus.BAD_REQUEST, "2001", "요청하신 보드가 존재하지 않습니다."),
@@ -34,10 +35,12 @@ public enum ErrorCode {
     NOT_IN_COLUMN(HttpStatus.BAD_REQUEST, "3001", "컬럼이 현재 보드에 속해있지 않습니다"),
 
     // card (4000)
-    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000", "카드 조회 실패")
+    NOT_FOUND_CARD(HttpStatus.BAD_REQUEST, "4000", "카드 조회 실패"),
 
     // comment (5000)
-    ;
+    NOT_FOUND_COMMENT(HttpStatus.BAD_REQUEST, "5000", "해당 댓글은 존재하지 않습니다."),
+    NOT_COMMENT_CONTENT(HttpStatus.BAD_REQUEST, "5001", "내용을 입력해주세요.");
+
     private final HttpStatus status;
     private final String code;
     private final String message;
