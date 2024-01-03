@@ -1,5 +1,6 @@
 package com.example.cooperationtool.domain.comment.service.Impl;
 
+import com.example.cooperationtool.domain.card.entity.Card;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
 import com.example.cooperationtool.domain.comment.dto.request.CommentRequestDto;
 import com.example.cooperationtool.domain.comment.dto.response.CommentResponseDto;
@@ -20,17 +21,24 @@ import org.springframework.stereotype.Service;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
+    private final CardRepository cardRepository;
 
     @Override
-    public CommentResponseDto createComment(CommentRequestDto commentRequestDto, User user, Long cardId) {
+    public CommentResponseDto createComment(CommentRequestDto commentRequestDto, User user,
+        Long cardId) {
 
         if (commentRequestDto.getContent() == null) {
             throw new ServiceException(ErrorCode.NOT_COMMENT_CONTENT);
         }
 
+        Card card = cardRepository.findById(cardId).orElseThrow(
+            () -> new ServiceException(ErrorCode.NOT_FOUND_CARD)
+        );
+
         Comment comment = Comment.builder()
             .content(commentRequestDto.getContent())
             .user(user)
+            .card(card)
             .build();
 
         commentRepository.save(comment);
@@ -39,10 +47,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public CommentResponseDto updateComment(CommentRequestDto commentRequestDto, User user, Long commentId) {
+    public CommentResponseDto updateComment(CommentRequestDto commentRequestDto, User user,
+        Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
             new ServiceException(ErrorCode.NOT_FOUND_COMMENT));
-
 
         if (!user.getId().equals(comment.getUser().getId())) {
             throw new ServiceException(ErrorCode.NOT_MATCH_USER);
@@ -54,7 +62,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public CommentResponseDto deleteComment(User user, Long commentId) {
+    public void deleteComment(User user, Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
             new ServiceException(ErrorCode.NOT_FOUND_COMMENT));
 
@@ -65,7 +73,6 @@ public class CommentServiceImpl implements CommentService {
         }
 
         commentRepository.delete(comment);
-        return null;
     }
 
     @Transactional
