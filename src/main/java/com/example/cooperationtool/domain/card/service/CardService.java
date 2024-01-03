@@ -165,18 +165,23 @@ public class CardService {
 
     @Transactional
     public CardResponseDto updateAllCardDueDates(Long cardId, Long dday, User user) {
-        var byCard = findByCardId(cardId);
+        var byUser = userRepository.findById(user.getId());
+        if (byUser.isEmpty()) {
+            throw new ServiceException(NOT_EXIST_USER);
+        }
 
-        var byCardId = inviteCardRepository.findByCardId(cardId);
-        boolean ListId = byCardId.stream()
-            .anyMatch(ListCardId -> ListCardId.getCard().getUser().getId().equals(user.getId()));
+        List<InviteCard> byCardId = inviteCardRepository.findByCardId(cardId);
 
-        if (ListId || user.getId().equals(byCard.getUser().getId())) {
+        boolean listId = byCardId.stream()
+            .anyMatch(listCardId -> listCardId.getCard().getUser().getId().equals(user.getId()));
+
+        if (listId) {
+            Card byCard = findByCardId(cardId);
             updateCardDday(byCard, dday);
+            return new CardResponseDto(byCard);
         } else {
             throw new ServiceException(NOT_FOUND_CARD);
         }
-        return new CardResponseDto(byCard);
     }
 
     @Transactional

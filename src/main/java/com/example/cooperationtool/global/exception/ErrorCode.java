@@ -38,7 +38,12 @@ public enum ErrorCode {
 
     // comment (5000)
     NOT_FOUND_COMMENT(HttpStatus.BAD_REQUEST, "5000", "해당 댓글은 존재하지 않습니다."),
-    NOT_COMMENT_CONTENT(HttpStatus.BAD_REQUEST, "5001", "내용을 입력해주세요.");
+    NOT_COMMENT_CONTENT(HttpStatus.BAD_REQUEST, "5001", "내용을 입력해주세요."),
+
+    // todos(6000)
+    NOT_FOUND_TODO(HttpStatus.BAD_REQUEST, "6000" ,"해당 할일을 찾을 수 없습니다.")
+
+    ;
 
     private final HttpStatus status;
     private final String code;

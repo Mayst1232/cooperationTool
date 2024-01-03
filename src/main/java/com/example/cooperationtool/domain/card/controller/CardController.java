@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -110,7 +111,7 @@ public class CardController {
             .build());
     }
 
-    @PostMapping("/date/{cardId}")
+    @PutMapping("/date/{cardId}")
     public ResponseEntity<?> dDayCards(@PathVariable Long cardId, @RequestParam Long dday,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
         CardResponseDto cardResponseDto = cardService.updateAllCardDueDates(cardId, dday,
