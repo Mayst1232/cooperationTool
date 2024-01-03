@@ -62,7 +62,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public CommentResponseDto deleteComment(User user, Long commentId) {
+    public void deleteComment(User user, Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
             new ServiceException(ErrorCode.NOT_FOUND_COMMENT));
 
@@ -73,7 +73,6 @@ public class CommentServiceImpl implements CommentService {
         }
 
         commentRepository.delete(comment);
-        return null;
     }
 
     @Transactional

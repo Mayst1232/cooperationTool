@@ -9,9 +9,10 @@ public interface CommentService {
 
     CommentResponseDto createComment(CommentRequestDto commentRequestDto, User user, Long cardId);
 
-    CommentResponseDto updateComment(CommentRequestDto commentRequestDto, User user, Long commentId);
+    CommentResponseDto updateComment(CommentRequestDto commentRequestDto, User user,
+        Long commentId);
 
-    CommentResponseDto deleteComment(User user, Long commentId);
+    void deleteComment(User user, Long commentId);
 
     List<CommentResponseDto> getComment(Long cardId);
 }
