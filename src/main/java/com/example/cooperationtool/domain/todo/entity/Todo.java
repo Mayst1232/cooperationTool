@@ -58,4 +58,8 @@ public class Todo extends BaseEntity {
     public void setComplete(boolean complete) {
         this.complete = complete;
     }
+
+    public void setUser(User user){
+        this.user = user;
+    }
 }
