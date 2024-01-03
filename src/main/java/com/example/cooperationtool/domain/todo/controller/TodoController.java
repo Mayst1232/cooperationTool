@@ -1,5 +1,6 @@
 package com.example.cooperationtool.domain.todo.controller;
 
+import com.example.cooperationtool.domain.todo.dto.TodoModifyRequestDto;
 import com.example.cooperationtool.domain.todo.dto.TodoRequestDto;
 import com.example.cooperationtool.domain.todo.dto.TodoResponseDto;
 import com.example.cooperationtool.domain.todo.service.TodoService;
@@ -51,9 +52,9 @@ public class TodoController {
 
     @PatchMapping("/{todoId}")
     public ResponseEntity<?> modifyTodo(@PathVariable Long todoId,
-        @RequestBody TodoRequestDto todoRequestDto,
+        @RequestBody TodoModifyRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        TodoResponseDto todoResponseDto = todoService.modifyTodo(todoId, todoRequestDto, userDetails.getUser());
+        TodoResponseDto todoResponseDto = todoService.modifyTodo(todoId, requestDto, userDetails.getUser());
         return ResponseEntity.ok().body(RootResponseDto.builder()
             .code("201")
             .message("수정 완료")

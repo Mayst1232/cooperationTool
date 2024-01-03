@@ -11,6 +11,7 @@ import com.example.cooperationtool.domain.card.entity.Card;
 import com.example.cooperationtool.domain.card.entity.InviteCard;
 import com.example.cooperationtool.domain.card.repository.CardRepository;
 import com.example.cooperationtool.domain.card.repository.InviteCardRepository;
+import com.example.cooperationtool.domain.todo.dto.TodoModifyRequestDto;
 import com.example.cooperationtool.domain.todo.dto.TodoRequestDto;
 import com.example.cooperationtool.domain.todo.dto.TodoResponseDto;
 import com.example.cooperationtool.domain.todo.entity.Todo;
@@ -30,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class TodoService {
 
     private final TodoRepository todoRepository;
-    private final UserRepository userRepository;
     private final InviteCardRepository inviteCardRepository;
     private final CardRepository cardRepository;
     private final InviteBoardRepository inviteBoardRepository;
@@ -82,7 +82,7 @@ public class TodoService {
     }
 
     @Transactional
-    public TodoResponseDto modifyTodo(Long todoId, TodoRequestDto todoRequestDto, User user) {
+    public TodoResponseDto modifyTodo(Long todoId, TodoModifyRequestDto todoRequestDto, User user) {
         Todo todo = getTodo(todoId);
 
         if(!todo.getUser().getUsername().equals(user.getUsername())) {
@@ -97,10 +97,12 @@ public class TodoService {
     }
 
     public void deleteTodo(Long todoId, User user) {
-        var byTodo = getTodo(todoId);
-        var byUser = userRepository.findById(user.getId());
+        var todo = getTodo(todoId);
+        if(!todo.getUser().getUsername().equals(user.getUsername())) {
+            throw new ServiceException(NOT_MATCH_USER);
+        }
 
-        todoRepository.delete(byTodo);
+        todoRepository.delete(todo);
     }
 
 
