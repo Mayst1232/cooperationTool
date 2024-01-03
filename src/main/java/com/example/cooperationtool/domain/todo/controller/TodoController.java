@@ -34,7 +34,8 @@ public class TodoController {
         return ResponseEntity.ok().body(RootResponseDto.builder()
             .code("201")
             .message("성공적으로 생성되었습니다.")
-            .data(responseDto));
+            .data(responseDto)
+            .build());
     }
 
     @GetMapping
@@ -46,17 +47,6 @@ public class TodoController {
             .message("전체 조회 완료")
             .data(todoResponseDto)
             .build()));
-    }
-
-    @GetMapping("/{todoId}")
-    public ResponseEntity<?> getTodo(@PathVariable Long todoId,
-        @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        TodoResponseDto todoResponseDto = todoService.getTodo(todoId, userDetails.getUser());
-        return ResponseEntity.ok().body(RootResponseDto.builder()
-            .code("200")
-            .message("단건 조회 완료")
-            .data(todoResponseDto)
-            .build());
     }
 
     @PatchMapping("/{todoId}")
